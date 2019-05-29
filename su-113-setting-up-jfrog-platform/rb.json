@@ -1,0 +1,34 @@
+{
+  "name": "swampup-demo",
+  "version": "1.0",
+  "dry_run": false,
+  "sign_immediately": false,
+  "storing_repository": "repository-name",
+  "store_at_source_artifactory": false,
+  "description": "bla",
+  "release_notes": {
+    "syntax": "plain_text",
+    "content": "bla"
+  },
+  "spec": {
+    "source_artifactory_id": "jfrt@01d74anqtxymnd0nfg9ky216da",
+    "queries": [
+      {
+        "aql": "items.find({ \"repo\" : \"generic-local\" },{ \"name\" : \"apache-el-8.0.33.jar\" })",
+        "query_name": "test",
+        "mappings": [
+          {
+            "input": "regex",
+            "output": "$1/$2"
+          }
+        ],
+        "added_props": [
+          {
+            "key": "key1",
+            "values": ["value1"]
+          }
+        ]
+      }
+    ]
+  }
+}
