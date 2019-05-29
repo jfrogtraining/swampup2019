@@ -5,10 +5,10 @@
   "sign_immediately": false,
   "storing_repository": "repository-name",
   "store_at_source_artifactory": false,
-  "description": "bla",
+  "description": "Release Bundle for SwampUp Training",
   "release_notes": {
     "syntax": "plain_text",
-    "content": "bla"
+    "content": "This is my first Release Bundle"
   },
   "spec": {
     "source_artifactory_id": "jfrt@01d74anqtxymnd0nfg9ky216da",
