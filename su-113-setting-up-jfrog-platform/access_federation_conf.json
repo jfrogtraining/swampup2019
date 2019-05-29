@@ -1,4 +1,4 @@
 {
-"entities":["USERS","GROUPS",”PERMISSIONS”,”TOKENS],
+"entities":["USERS","GROUPS","PERMISSIONS","TOKENS"],
 "targets":[{"name":"edge-london","url":"http://edge-london/artifactory"},{"name":"artifactory-china","url":"http://artifactory-china/artifactory"}]
 }
