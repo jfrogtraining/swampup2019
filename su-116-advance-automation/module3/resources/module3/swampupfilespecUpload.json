@@ -1,0 +1,22 @@
+{
+  "files": [
+    {
+      "pattern": "jdk/",
+      "target": "tomcat-local/",
+      "props": "source:jfrogtraining; approved:pending",
+      "flat": "false"
+    },
+    {
+      "pattern": "tomcat/",
+      "target": "tomcat-local/",
+      "props": "source:jfrogtraining; approved:pending",
+      "flat" : "false"
+    }, 
+    {
+      "pattern": "helm", 
+      "target": "generic-local/helm",
+      "props": "source:jfrogtraining; approved:pending", 
+      "flat": "true"
+    }
+  ]
+}

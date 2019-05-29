@@ -1,0 +1,31 @@
+# Exercise 3d-a: Find all archive with impl.class
+items.find (
+{
+	"archive.entry.name":{"$eq":"Impl.class"}
+}).include("archive.item.repo", "archive.item.path", "archive.item.artifact.module.build.name", "archive.item.artifact.module.build.number")
+
+# Excercise 3d-b: Find latest docker image
+items.find(
+{
+	"repo":"'$REPO'",
+	"type":"folder",
+	"$and":[
+		{"path": {"$match":"'$IMAGE'*"}},
+		{"path":{"$nmatch":"'$IMAGE'/latest"}}
+	]
+}).include("path","created","name").sort({"$desc":["created"]}).limit(1)'
+
+# Excercise 3d-c: Clean Up Example
+items.find (
+{
+   “type”:”file”,
+   ”created_by”:”stanleyf”,
+   ”size”:”{“$gt”:100000000”},
+   “stat.downloads”:{“$eq”:null}, 
+   “@qa”:”not-approved”,
+   “$or”:[
+    {“name”:{“$match”:”*.tar”}},
+    {”name”:{“$match”:”*.zip”}}
+   ]
+}).sort({“$desc”:[“size”,”name”}}).limit(100)
+
