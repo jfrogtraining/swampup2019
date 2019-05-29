@@ -1,4 +1,3 @@
-createbucket.json:
 {
     "bucket_name" : "BucketSwampUpEdgeNodes",
     "bucket_url" : "BUCKET_URL",
