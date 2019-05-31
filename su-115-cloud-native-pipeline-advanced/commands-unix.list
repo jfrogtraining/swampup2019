@@ -15,7 +15,7 @@ export ADMIN_PASSWORD=<password>
 
 
 ################################################
-#
+#init
 ################################################
 #Remove uneeded repository from templated environment
 
@@ -27,6 +27,14 @@ curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositor
 
 #Create repositories for docker pipelines (prerequisites for lab1)
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/docker-dev-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
-curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/docker -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-virtual-config.json
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/docker -H "content-type: application/vnd.org.jfrog.artifactory.repositories.RemoteRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-remote-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/docker -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-virtual-config.json
 
+################################################
+#Lab 2
+################################################
+#Create a docker-prod-local repository
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/docker-prod-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
+
+#update docker virtual repository
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/docker -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab2/repository-docker-virtual-config.json
