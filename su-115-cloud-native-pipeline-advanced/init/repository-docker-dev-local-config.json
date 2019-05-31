@@ -1,0 +1,11 @@
+{
+    "rclass" : "local",
+    "packageType": "docker",
+    "description": "My local repository for docker dev images",
+    "includesPattern": "**/*",
+    "excludesPattern": "",
+    "repoLayoutRef" : "simple-default",
+    "blackedOut": false,
+    "archiveBrowsingEnabled" : false
+
+}

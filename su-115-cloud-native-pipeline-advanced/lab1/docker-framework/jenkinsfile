@@ -1,0 +1,63 @@
+#!/usr/bin/env groovy
+
+node {
+    //Clone example project from GitHub repository
+    git url: 'https://github.com/jfrogtraining/kubernetes_example.git', branch : 'master'
+    def rtServer = Artifactory.server SERVER_ID
+    def rtDocker = Artifactory.docker server: rtServer
+    def buildInfo = Artifactory.newBuildInfo()
+    def tagName
+    buildInfo.env.capture = true
+    //Fetch all depensencies from Artifactory
+    stage('Dependencies') {
+        dir('docker-framework') {
+            try {
+                println "Gather Java and Tomcat"
+
+                def downloadSpec = """{
+                         "files": [
+                          {
+                           "pattern": "tomcat-local/java/jdk-8u91-linux-x64.tar.gz",
+                           "target": "jdk/jdk-8-linux-x64.tar.gz",
+                           "flat":"true"
+                          },
+                          {
+                           "pattern": "tomcat-local/org/apache/apache-tomcat/apache-tomcat-8.0.32.tar.gz",
+                           "target": "tomcat/apache-tomcat-8.tar.gz",
+                           "flat":"true"
+                          }
+                          ]
+                        }"""
+
+                rtServer.download (downloadSpec, buildInfo)
+                if (fileExists('jdk/jdk-8-linux-x64.tar.gz') && fileExists('tomcat/apache-tomcat-8.tar.gz')) {
+                    println "Downloaded dependencies"
+                } else {
+                    println "Missing Dependencies either jdk or tomcat - see listing below:"
+                    sh 'ls -d */*'
+                    throw new FileNotFoundException("Missing Dependencies")
+                }
+            } catch (Exception e) {
+                println "Caught exception during resolution.  Message ${e.message}"
+                throw e
+            }
+        }
+    }
+    //Build docker image named "docker-framework" with Java 8 and Tomcat
+    stage('Build') {
+        dir ('docker-framework') {
+                sh "sed -i 's/docker.artifactory/${ARTDOCKER_REGISTRY}/' Dockerfile"
+                tagName = "${ARTDOCKER_REGISTRY}/docker-framework:${env.BUILD_NUMBER}"
+                //HERE IMPLEMENT THE FOLLOWING :
+                // 1 BUILD IMAGE
+                // 2 PUSH IMAGE
+                // 3 PUSH BUILD INFO (OPTIONAL)
+                // you can refer to : https://www.jfrog.com/confluence/display/RTF/Working+With+Pipeline+Jobs+in+Jenkins#WorkingWithPipelineJobsinJenkins-DockerBuildswithArtifactory
+        }
+    }
+    //Test docker image
+    stage('Test') {
+        //TODO
+    }
+    
+}

@@ -1,0 +1,12 @@
+{
+    "rclass" : "remote",
+    "packageType": "docker",
+    "description": "My local repository for docker dev images",
+    "includesPattern": "**/*",
+    "excludesPattern": "",
+    "repoLayoutRef" : "simple-default",
+    "dockerApiVersion" : "V2",
+    "url" : "https://registry-1.docker.io/",
+    "blackedOut": false,
+    "archiveBrowsingEnabled" : false
+}

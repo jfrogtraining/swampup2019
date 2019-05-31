@@ -1,0 +1,14 @@
+{
+    "rclass" : "local",
+    "packageType": "gradle",
+    "description": "My local repository for pre-production",
+    "includesPattern": "**/*",
+    "excludesPattern": "",
+    "repoLayoutRef" : "gradle-default",
+    "checksumPolicyType": "client-checksums",
+    "handleReleases": true,
+    "handleSnapshots": false,
+    "suppressPomConsistencyChecks": false,
+    "blackedOut": false,
+    "archiveBrowsingEnabled" : false
+}

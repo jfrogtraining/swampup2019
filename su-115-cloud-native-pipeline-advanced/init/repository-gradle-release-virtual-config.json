@@ -1,0 +1,8 @@
+{
+    "rclass" : "virtual",
+    "packageType": "gradle",
+    "description": "My virtual repository for java",
+    "repositories": ["gradle-release-local", "gradle-dev-local", "jcenter"],
+    "artifactoryRequestsCanRetrieveRemoteArtifacts": false,
+    "defaultDeploymentRepo": "gradle-dev-local"
+}

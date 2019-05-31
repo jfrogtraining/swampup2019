@@ -1,0 +1,23 @@
+{
+    "rclass" : "remote",
+    "packageType" : "gradle",
+    "description" : "",
+    "includesPattern" : "**/*",
+    "excludesPattern" : "",
+    "repoLayoutRef" : "gradle-default",
+    "url" : "https://jcenter.bintray.com",
+    "username" : "",
+    "password" : "",
+    "handleReleases" : true,
+    "handleSnapshots" : true,
+    "suppressPomConsistencyChecks" : true,
+    "remoteRepoChecksumPolicyType" : "generate-if-absent",
+    "fetchJarsEagerly" : false,
+    "fetchSourcesEagerly" : false,
+    "shareConfiguration" : false,
+    "synchronizeProperties" : false,
+    "maxUniqueSnapshots" : 0,
+    "maxUniqueTags" : 0,
+    "propertySets" : [ "artifactory" ]
+    
+  }

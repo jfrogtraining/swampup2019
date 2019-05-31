@@ -1,0 +1,64 @@
+#!/usr/bin/env groovy
+
+node {
+    //Clone example project from GitHub repository
+    git url: 'https://github.com/jfrogtraining/kubernetes_example.git', branch: 'master'
+    def rtServer = Artifactory.server SERVER_ID
+    def rtDocker = Artifactory.docker server: rtServer
+    def buildInfo = Artifactory.newBuildInfo()
+    def tagDockerApp
+
+    buildInfo.env.capture = true
+
+    //Fetch all depedencies from Artifactory
+    stage ('Dependencies') {
+        dir ('docker-app') {
+            try {
+                println "Gather Released Docker Framework and Gradle War file"
+                def gradleWarDownload = """{
+                    "files": [
+                      {
+                        "pattern": "gradle-release-local/org/jfrog/example/gradle/webservice/1.1.2/*.war",
+                        "target": "war/webservice.war",
+                        "props": "unit-test=pass",
+                        "flat": "true"
+                      }
+                    ]
+                 }"""
+                rtServer.download(gradleWarDownload, buildInfo )
+            } catch (Exception e) {
+                println "Caught Exception during resolution. Message ${e.message}"
+                throw e
+            }
+        }
+    }
+    //Build docker image named docker-app
+    stage ('Build & Deploy') {
+        dir ('docker-app') {
+            sh "sed -i 's/docker.artifactory/${ARTDOCKER_REGISTRY}/' Dockerfile"
+            tagDockerApp = "${ARTDOCKER_REGISTRY}/docker-app:${env.BUILD_NUMBER}"
+            //HERE IMPLEMENT THE FOLLOWING :
+            // 1 BUILD IMAGE
+            // 2 PUSH IMAGE
+            // 3 PUSH BUILD INFO (OPTIONAL)
+            // you can refer to : https://www.jfrog.com/confluence/display/RTF/Working+With+Pipeline+Jobs+in+Jenkins#WorkingWithPipelineJobsinJenkins-DockerBuildswithArtifactory
+        }
+     }
+    //Test docker image
+     stage ('Test') {
+       //TODO
+     }
+
+    //Promote docker image from staging local repo to production repo in Artifactory
+     stage ('Promote') {
+        dir('docker-app') {
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                //LAB 2 : PROMOTE TO PROD REPOSITORY
+                //1 PERFORM A COPY FROM DEV REPOSITORY TO PROD REPOSITORY 
+                //(ALTERNATIVE : IF YOU PUBLISHED BUILD INFORMATION IN BUILD STEP THEN USE BUILD PROMOTION API see : https://www.jfrog.com/confluence/display/RTF/Working+With+Pipeline+Jobs+in+Jenkins#WorkingWithPipelineJobsinJenkins-PromotingBuildsinArtifactory)
+                //2 GENERATE, AT LEAST 1, DYNAMIC TAG PER REGISTRY (e.g. "latest" for dev and prod + "stable" for prod)     
+                // you can refer to : https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API#ArtifactoryRESTAPI-PromoteDockerImage        
+             }
+     }
+}
+}
