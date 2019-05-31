@@ -46,7 +46,7 @@ node {
     //Build docker image named "docker-framework" with Java 8 and Tomcat
     stage('Build') {
         dir ('docker-framework') {
-                sh "sed -i 's/docker.artifactory/${ARTDOCKER_REGISTRY}/' Dockerfile"
+                sh "sed -ie 's#docker.artifactory#${ARTDOCKER_REGISTRY}#g' Dockerfile"
                 tagName = "${ARTDOCKER_REGISTRY}/docker-framework:${env.BUILD_NUMBER}"
                 //HERE IMPLEMENT THE FOLLOWING :
                 // 1 BUILD IMAGE
