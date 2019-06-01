@@ -35,7 +35,8 @@ node {
     //Build docker image named docker-app
     stage ('Build & Deploy') {
         dir ('docker-app') {
-            sh "sed -i 's/docker.artifactory/${ARTDOCKER_REGISTRY}/' Dockerfile"
+            sh "sed -ie 's#docker.artifactory#${ARTDOCKER_REGISTRY}#g' Dockerfile"
+            sh "sed -ie 's#:latest#:stable#g' Dockerfile"
             tagDockerApp = "${ARTDOCKER_REGISTRY}/docker-app:${env.BUILD_NUMBER}"
             println "Docker App Build"
             docker.build(tagDockerApp)

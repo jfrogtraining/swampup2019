@@ -35,7 +35,7 @@ node {
     //Build docker image named docker-app
     stage ('Build & Deploy') {
         dir ('docker-app') {
-            sh "sed -i 's/docker.artifactory/${ARTDOCKER_REGISTRY}/' Dockerfile"
+            sh "sed -ie 's#docker.artifactory#${ARTDOCKER_REGISTRY}#g' Dockerfile"
             tagDockerApp = "${ARTDOCKER_REGISTRY}/docker-app:${env.BUILD_NUMBER}"
             //HERE IMPLEMENT THE FOLLOWING :
             // 1 BUILD IMAGE
@@ -52,13 +52,12 @@ node {
     //Promote docker image from staging local repo to production repo in Artifactory
      stage ('Promote') {
         dir('docker-app') {
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 //LAB 2 : PROMOTE TO PROD REPOSITORY
                 //1 PERFORM A COPY FROM DEV REPOSITORY TO PROD REPOSITORY 
                 //(ALTERNATIVE : IF YOU PUBLISHED BUILD INFORMATION IN BUILD STEP THEN USE BUILD PROMOTION API see : https://www.jfrog.com/confluence/display/RTF/Working+With+Pipeline+Jobs+in+Jenkins#WorkingWithPipelineJobsinJenkins-PromotingBuildsinArtifactory)
                 //2 GENERATE, AT LEAST 1, DYNAMIC TAG PER REGISTRY (e.g. "latest" for dev and prod + "stable" for prod)     
                 // you can refer to : https://www.jfrog.com/confluence/display/RTF/Artifactory+REST+API#ArtifactoryRESTAPI-PromoteDockerImage        
-             }
+             
      }
 }
 }
