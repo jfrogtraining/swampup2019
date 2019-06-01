@@ -1,0 +1,8 @@
+{
+    "rclass" : "virtual",
+    "packageType": "helm",
+    "description": "My virtual repository for helm charts",
+    "repositories": ["helm-local"],
+    "artifactoryRequestsCanRetrieveRemoteArtifacts": false,
+    "defaultDeploymentRepo": "helm-local"
+}

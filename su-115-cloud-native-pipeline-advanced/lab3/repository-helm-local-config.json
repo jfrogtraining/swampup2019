@@ -1,0 +1,11 @@
+{
+    "rclass" : "local",
+    "packageType": "helm",
+    "description": "My local repository for helm charts",
+    "includesPattern": "**/*",
+    "excludesPattern": "",
+    "repoLayoutRef" : "simple-default",
+    "blackedOut": false,
+    "archiveBrowsingEnabled" : false
+
+}
