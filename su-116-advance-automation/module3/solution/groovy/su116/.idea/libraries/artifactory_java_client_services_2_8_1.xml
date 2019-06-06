@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="artifactory-java-client-services-2.8.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Downloads/artifactory-java-client-services-2.8.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

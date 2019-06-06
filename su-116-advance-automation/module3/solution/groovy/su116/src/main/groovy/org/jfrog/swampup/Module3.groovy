@@ -10,6 +10,7 @@ class Module3 {
     static def password = System.getProperty("art.password")
     static def repoYaml = System.getProperty("repo.config")
     static ArtifactoryLib artl
+    static def apiKey = null
 
     public static void main (String [] args) {
         println "Exercise 3a - Create User and Repositories"
