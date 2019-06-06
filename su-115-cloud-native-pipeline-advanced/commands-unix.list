@@ -27,8 +27,7 @@ curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositor
 
 #Create repositories for docker pipelines (prerequisites for lab1)
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/docker-dev-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
-curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/docker -H "content-type: application/vnd.org.jfrog.artifactory.repositories.RemoteRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-remote-config.json
-curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/docker -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-virtual-config.json
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/docker-virtual -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-virtual-config.json
 
 ################################################
 #Lab 2
@@ -47,3 +46,37 @@ curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositor
 
 #update docker virtual repository
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/helm -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-virtual-config.json
+
+################################################
+#Lab 5
+################################################
+#create a full mesh topology for docker repositories
+
+#create same repo structure on each site
+
+#create repo target for replication
+
+#create virtual repositories
+
+
+#configure Access Federation in mesh
+
+################################################
+#Lab 6
+################################################
+#Get service ids
+export id_main=$(curl -uadmin:$ADMIN_PASSWORD -X POST  http://jfrog.local/artifactory/api/system/service_id)
+
+sed -ie s#jfrt@...#$id_main#g $SCRIPT_DIR/lab6/release-bundle.json
+
+#Create and sign a Release Bundle
+curl -uadmin:$ADMIN_PASSWORD http://jfrog.local:PORTDISTRIB/api/v1/release_bundle -H "Content-Type: application/json" -T $SCRIPT_DIR/lab6/release-bundle.json
+
+#Distribute the Release Bundle
+curl -uadmin:$ADMIN_PASSWORD http://jfrog.local:PORTDISTRIB/api/v1/distribution/MySwampupProduct/1.0 -H "Content-Type: application/json" -T $SCRIPT_DIR/lab6/distribution.json
+
+
+
+
+
+ 

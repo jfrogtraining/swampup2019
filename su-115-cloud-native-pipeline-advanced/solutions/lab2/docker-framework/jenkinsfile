@@ -70,7 +70,7 @@ node {
               'buildNumber'        : env.BUILD_NUMBER,
               'targetRepo'         : PROMOTE_REPO,
               'comment'            : 'Framework tested with latest version of application',
-              'sourceRepo'         : SOURCE_REPO,
+              'sourceRepo'         : REPO,
               'status'             : 'Released',
               'includeDependencies': false,
               'copy'               : true
