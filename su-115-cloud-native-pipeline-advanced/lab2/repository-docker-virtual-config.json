@@ -2,7 +2,7 @@
     "rclass" : "virtual",
     "packageType": "docker",
     "description": "My virtual repository for java",
-    "repositories": ["docker-dev-local", "docker-hub-remote","docker-prod-local"],
+    "repositories": ["docker-dev-local", "docker-remote","docker-prod-local"],
     "artifactoryRequestsCanRetrieveRemoteArtifacts": false,
     "defaultDeploymentRepo": "docker-dev-local"
 }

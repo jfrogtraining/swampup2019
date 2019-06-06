@@ -36,7 +36,7 @@ curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/reposito
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/docker-prod-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
 
 #update docker virtual repository
-curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/docker -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab2/repository-docker-virtual-config.json
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/docker-virtual -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab2/repository-docker-virtual-config.json
 
 ################################################
 #Lab 3
