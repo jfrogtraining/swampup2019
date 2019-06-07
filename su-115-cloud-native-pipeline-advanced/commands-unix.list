@@ -44,8 +44,8 @@ curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/reposito
 #Create a helm-local repository
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/helm-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
 
-#update docker virtual repository
-curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/helm -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-virtual-config.json
+#update helm virtual repository
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/helm-virtual -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-virtual-config.json
 
 ################################################
 #Lab 5

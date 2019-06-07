@@ -7,23 +7,20 @@ node {
 
     stage('Install helm & JFrog CLI') {
         /* This installs helm client and JFrog Cli */
-        sh "curl -fL https://getcli.jfrog.io | sh"
         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
             sh "./jfrog rt config --url ${SERVER_URL} --user ${env.USERNAME} --password ${env.PASSWORD}"
-            sh "curl -u ${env.USERNAME}:${env.PASSWORD} -O ${SERVER_URL}/generic-local/helm"
-            sh "chmod 777 ./helm"
+            
         }
     }
 
     stage('Build Chart & push it to Artifactory repo') {
         /* Configure helm client to point to k8s cluster */
-         sh "./helm init"
+         sh "./helm init  --client-only"
          sh "sed -ie 's/0.1.1/0.1.${env.BUILD_NUMBER}/' docker-app-chart/Chart.yaml"
-         sh "sed -ie 's/latest/${stable}/g' docker-app-chart/values.yaml"
+         sh "sed -ie 's/stable/${IMAGE_TAG}/g' docker-app-chart/values.yaml"
          sh "./helm package ./docker-app-chart/"
          
          //HERE USE THE JFROG CLI TO UPLOAD GENERATED HELM CHART IN ARTIFACTORY
          //BONUS : USE THE CLI TO GATHER BUILD INFORMATION WITH ENVIRONMENT VARIABLES
-         //EXTRA BONUS : HOW TO REFLECT THE RIGHT DOCKER IMAGE TAG AS A DEPENDECY OF THIS BUILD?
     }
 }
