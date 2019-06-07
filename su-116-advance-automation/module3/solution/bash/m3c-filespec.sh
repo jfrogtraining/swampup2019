@@ -5,22 +5,26 @@
 #   FILESPEC - https://www.jfrog.com/confluence/display/RTF/Using+File+Specs
 #   JFROG CLI - https://www.jfrog.com/confluence/display/CLI/JFrog+CLI
 #   YAML Configuration - https://www.jfrog.com/confluence/display/RTF/YAML+Configuration+File
-
+#
+# Remember to update local /etc/hosts with the orbitera ip address to jfrog.local
+#
 # Variables
-ART_URL="http://jiracloud-art-test.jfrog.team/artifactory"
-ART_PASSWORD="pFc!nV8HZ6m-UBC1"
-USER="swamp2018"
+ART_URL="http://jfrog.local/artifactory"
+ART_PASSWORD="7I2GK045zA"
+USER="admin"
 ACCESS_TOKEN=""
 USER_APIKEY=""
-SERVER_ID="swampup2019"
-REMOTE_ARTFACTORY="https://jfrogtraining.jfrog.io/jfrogtraining/"
-REMOTE_ART_ID="jfrogtraining"
+SERVER_ID="us-site"
+REMOTE_ARTFACTORY="http://35.224.137.48:8092/artifactory"
+REMOTE_ART_ID="es-site"
+REPOSITORY_YAML_LOC="resources/module3/repo.yaml"
 REMOTE_ART_APIKEY="AKCp2Vo711zssGkjSUgXYc32HVfNhUbddJ9uLGRhQDpDTWuKr7EFeZorbpbiFfBu2haZ81YLX"
 
 #Dependencies
 TOMCAT="tomcat-local/org/apache/apache-tomcat/apache-tomcat-*.tar.gz"
 JDK="tomcat-local/java/jdk-8u91-linux-x64.tar.gz"
-HELM="generic-local/helm"
+HELM="helm-local/helm"
+DEPENDENCY_FILESPEC="resources/module3/swampupfilespecUpload.json"
 
 # Exercise 3a - Create User and Repositories
 createUser () {
@@ -57,8 +61,9 @@ createRepo () {
 loginArt () {
    echo "Log into Artifactories"
    curl -fLs jfrog https://getcli.jfrog.io | sh
-   ./jfrog rt c ${REMOTE_ART_ID} --url=${REMOTE_ARTFACTORY} --apikey=${REMOTE_ART_APIKEY}
-   ./jfrog rt c ${SERVER_ID} --url=${ART_URL} --apikey=${USER_APIKEY}
+   jfrog rt c ${REMOTE_ART_ID} --url=${REMOTE_ARTFACTORY} --apikey=${REMOTE_ART_APIKEY}
+   jfrog rt c ${SERVER_ID} --url=${ART_URL} --apikey=${USER_APIKEY}
+   jfrog rt c show
 }
 
 # Download the required dependencies from remote artifactory instance (jfrogtraining)
@@ -69,17 +74,17 @@ loginArt () {
 # Similar to using third party binaries that are not available from remote repositories.
 downloadDependenciesTools () {
   echo "Fetch tomcat for the later docker framework build"
-  ./jfrog rt dl ${TOMCAT} ./tomcat/apache-tomcat-8.tar.gz --server-id ${REMOTE_ART_ID} --threads=5 --flat=true --props=swampup2019=ready
+  jfrog rt dl ${TOMCAT} ./tomcat/apache-tomcat-8.tar.gz --server-id ${REMOTE_ART_ID} --threads=5 --flat=true --props=swampup2019=ready
   echo "Fetch java for the later docker framework build"
-  ./jfrog rt dl ${JDK} ./jdk/jdk-8-linux-x64.tar.gz --server-id ${REMOTE_ART_ID} --threads=5 --flat=true --props=swampup2019=ready
+  jfrog rt dl ${JDK} ./jdk/jdk-8-linux-x64.tar.gz --server-id ${REMOTE_ART_ID} --threads=5 --flat=true --props=swampup2019=ready
   echo "Fetch Helm Client for later helm chart"
-  ./jfrog rt dl ${HELM} ./ --server-id ${REMOTE_ART_ID} --props=swampup2019=ready
+  jfrog rt dl ${HELM} ./ --server-id ${REMOTE_ART_ID} --props=swampup2019=ready
 }
 
 # Exercise 3c - Filespec upload with properties
 uploadFileSpec () {
   echo "Uploading binaries to Artifactory"
-  ./jfrog rt u --spec $1 --server-id ${SERVER_ID}
+  jfrog rt u --spec $1 --server-id ${SERVER_ID}
 }
 
 
@@ -89,8 +94,8 @@ main () {
 #   createRepo "/Users/stanleyf/git/swampup2019/su-116-advance-automation/module3/repo.yaml"
    getUserSecurity
    loginArt
-   downloadDependenciesTools
-   uploadFileSpec "/Users/stanleyf/git/swampup2019/su-116-advance-automation/module3/swampupfilespecUpload.json"
+# downloadDependenciesTools
+  uploadFileSpec "$(dirname "$PWD")/${DEPENDENCY_FILESPEC}"
 }
 
 main
