@@ -9,16 +9,23 @@ node {
         /* This installs helm client and JFrog Cli */
         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
             sh "./jfrog rt config --url ${SERVER_URL} --user ${env.USERNAME} --password ${env.PASSWORD}"
-            
+            sh "curl -u ${env.USERNAME}:${env.PASSWORD} -O ${SERVER_URL}/generic-local/helm"
+            sh "chmod 777 ./helm"
         }
     }
 
     stage('Build Chart & push it to Artifactory repo') {
         /* Configure helm client to point to k8s cluster */
-         sh "./helm init  --client-only"
-         sh "sed -ie 's/0.1.1/0.1.${env.BUILD_NUMBER}/' docker-app-chart/Chart.yaml"
-         sh "sed -ie 's/stable/${IMAGE_TAG}/g' docker-app-chart/values.yaml"
-         sh "./helm package ./docker-app-chart/"
+        sh "./helm init  --client-only"
+        sh "sed -i 's/0.1.1/0.1.${env.BUILD_NUMBER}/' docker-app-chart/Chart.yaml"
+        sh "sed -i 's/latest/${IMAGE_TAG}/g' docker-app-chart/values.yaml"
+        sh "sed -i 's/docker.artifactory/jfrog.local:5000/g' docker-app-chart/values.yaml"
+        //For minikube the service type is set to Node Port
+        sh "sed -i 's/type: LoadBalancer/type: NodePort/g' docker-app-chart/values.yaml"
+        
+         
+         
+        sh "./helm package ./docker-app-chart/"
          
          //HERE USE THE JFROG CLI TO UPLOAD GENERATED HELM CHART IN ARTIFACTORY
          //BONUS : USE THE CLI TO GATHER BUILD INFORMATION WITH ENVIRONMENT VARIABLES
