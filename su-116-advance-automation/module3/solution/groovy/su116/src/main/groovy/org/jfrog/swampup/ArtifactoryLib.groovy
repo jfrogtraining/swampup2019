@@ -21,7 +21,7 @@ class ArtifactoryLib {
     }
 
     void createRepo(String yamlPath) {
-        def url = "${art.getUri()}/artifactory/<TBD>"
+        def url = "${art.getUri()}/artifactory/api/system/configuration"
         def request = ["curl", "-s", "-u", credentials, "-X", "PATCH", "-H", "Content-Type: application/yaml", url, "-T", yamlPath ];
         assert artifactoryRequest(request) : "Fail to create repositories; Request: ${request}"
     }
@@ -42,15 +42,15 @@ class ArtifactoryLib {
                 .setSocketTimeout(0)
                 .build()
 
-        ArtifactoryRequest securityRequest = new ArtifactoryRequestImpl().apiUrl("<TBD>")
-                .method (ArtifactoryRequest.Method.<TBD>)
+        ArtifactoryRequest securityRequest = new ArtifactoryRequestImpl().apiUrl("api/security/apiKey")
+                .method (ArtifactoryRequest.Method.GET)
                 .responseType(ArtifactoryRequest.ContentType.JSON)
-        ArtifactoryResponse response = <TBD>
+        ArtifactoryResponse response = artifactory.restCall(securityRequest)
         String[] parseResponse = response.getRawBody().split(":")
         return parseResponse[1]
     }
 
-     //Extra Assignment if time 
+    //Extra Assignment if time 
     def apiKeyUserCreate (String username, String password) {
 
         Artifactory artifactory = ArtifactoryClientBuilder.create ()
@@ -61,33 +61,33 @@ class ArtifactoryLib {
                 .setSocketTimeout(0)
                 .build()
 
-        ArtifactoryRequest securityRequest = new ArtifactoryRequestImpl().apiUrl("<TBD>")
-                .method(ArtifactoryRequest.Method.<TBD>)
+        ArtifactoryRequest securityRequest = new ArtifactoryRequestImpl().apiUrl("api/security/apiKey")
+                .method(ArtifactoryRequest.Method.POST)
                 .responseType(ArtifactoryRequest.ContentType.JSON)
-        ArtifactoryResponse response = <TBD>
+        ArtifactoryResponse response = artifactory.restCall(securityRequest)
         String[] parseResponse = response.getRawBody().split(":")
         return parseResponse[1]
     }
 
     private void usersCreate (String user, String password, String email, boolean admin) {
         UserBuilder ub = art.security().builders().userBuilder()
-        User userId = ub.<TBD>
-                .<TBD>
-                .<TBD>
+        User userId = ub.name(user)
+                .email(email)
+                .admin(admin)
                 .profileUpdatable(true)
-                .<TBD>
-                .<TBD>
+                .password(password)
+                .build()
         art.security().createOrUpdate(userId)
     }
 
     static private Artifactory createArtifactoryClient (def artUrl, String user, String password ) {
         return ArtifactoryClientBuilder.create()
-                .<TBD>
-                .<TBD>
-                .<TBD>
+                .setUrl(artUrl)
+                .setUsername(user)
+                .setPassword(password)
                 .setConnectionTimeout(0)
                 .setSocketTimeout(0)
-                .<TBD>
+                .build()
     }
 
     static private boolean artifactoryRequest (def request) {

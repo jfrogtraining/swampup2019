@@ -22,7 +22,7 @@ REPOSITORY_YAML_LOC="resources/module3/repo.yaml"
 createUser () {
   echo "Creating User: $1"
   curl  -uadmin:"${ART_PASSWORD}" -X PUT -H 'Content-Type: application/json' \
-      "${ART_URL}"/<TBD> -d '{
+      "${ART_URL}"/api/security/users/$1 -d '{
          "name":"'"$1"'",
          "password":"'"$2"'",
          "email":"null@jfrog.com",
@@ -34,19 +34,19 @@ createUser () {
 # Retrieve API Key
 getUserSecurity () {
   local response=($(curl -s -u"${USER}":"${ART_PASSWORD}" -X POST -H 'Content-Type: application/x-www-form-urlencoded' \
-       "${ART_URL}"/<TBD> -d "username=${USER}" -d "scope=member-of-groups:admin-group"))
+       "${ART_URL}"/api/security/token -d "username=${USER}" -d "scope=member-of-groups:admin-group"))
   ACCESS_TOKEN=$(echo ${response[@]} | jq '.access_token' | sed 's/"//g')
-  local response=($(curl -s -u"${USER}":"${ART_PASSWORD}" -X POST -H 'Content-Type: application/json' "${ART_URL}"/<TBD>))
-  local response=($(curl -s -u"${USER}":"${ART_PASSWORD}" -X GET -H 'Content-Type: application/json' "${ART_URL}"/<TBD>))
+
+  local response=($(curl -s -u"${USER}":"${ART_PASSWORD}" -X POST -H 'Content-Type: application/json' "${ART_URL}"/api/security/apiKey))
+  local response=($(curl -s -u"${USER}":"${ART_PASSWORD}" -X GET -H 'Content-Type: application/json' "${ART_URL}"/api/security/apiKey))
   USER_APIKEY=$(echo ${response[@]} | jq '.apiKey' | sed 's/"//g')
   echo "User api key: ${USER}:${USER_APIKEY} and access token: ${ACCESS_TOKEN}"
-
 }
 
 createRepo () {
   echo "Creating Repositories"
   local response=($(curl -s -u"admin":"${ART_PASSWORD}" -X PATCH -H "Content-Type: application/yaml" \
-       "${ART_URL}"/<TBD> -T $1))
+       "${ART_URL}"/api/system/configuration -T $1))
   echo ${response[@]}
 }
 
@@ -58,5 +58,4 @@ main () {
 }
 
 main
-
 
