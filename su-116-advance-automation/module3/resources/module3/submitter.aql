@@ -1,0 +1,4 @@
+items.find ({
+  "repo":"tomcat-local", 
+  "<TBD>":"<TBD>"
+}).include ("repo","name","created")

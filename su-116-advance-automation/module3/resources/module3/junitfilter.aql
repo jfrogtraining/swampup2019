@@ -1,0 +1,8 @@
+items.find ({
+    "archive.entry.name":{"<TBD>":"<TBD>"}
+}).include("archive.item.repo", 
+           "archive.item.path", 
+           "<TBD>", 
+           "<TBD>")
+
+

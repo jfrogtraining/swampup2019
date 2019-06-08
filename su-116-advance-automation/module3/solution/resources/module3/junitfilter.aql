@@ -1,0 +1,7 @@
+items.find ({
+    "archive.entry.name":{"$match":"junit-4.11.jar"}
+}).include("archive.item.repo", 
+           "archive.item.path", 
+           "archive.item.artifact.module.build.name", 
+           "archive.item.artifact.module.build.number")
+
