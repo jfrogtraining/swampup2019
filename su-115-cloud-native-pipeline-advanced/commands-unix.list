@@ -148,7 +148,7 @@ curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local:8092/artifactory/api/rep
 curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
       http://jfrog.local/artifactory/api/replications/gradle-release-local -d '{
         "url" : "http://jfrog.local:8092/artifactory/gradle-release-local",
-        "name":"admin",
+        "username":"admin",
         "password":"'"${ADMIN_PASSWORD}"'",
         "enableEventReplication" : true,
         "enabled" : true,
@@ -162,7 +162,7 @@ curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
 curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
       http://jfrog.local/artifactory/api/replications/docker-prod-local -d '{
         "url" : "http://jfrog.local:8092/artifactory/docker-prod-local",
-        "name":"admin",
+        "username":"admin",
         "password":"'"${ADMIN_PASSWORD}"'",
         "enableEventReplication" : true,
         "enabled" : true,
@@ -173,10 +173,10 @@ curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
         "repoKey" : "docker-prod-local"
        }'
 
-curl -uadmin:"${ADMIN_PASSWORD}" -X PUT -H 'Content-Type: application/json' \
-      http://jfrog.local/api/replications/helm-local -d '{
+curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
+      http://jfrog.local/artifactory/api/replications/helm-local -d '{
         "url" : "http://jfrog.local:8092/artifactory/helm-local",
-        "name":"admin",
+        "username":"admin",
         "password":"'"${ADMIN_PASSWORD}"'",
         "enableEventReplication" : true,
         "enabled" : true,
@@ -184,7 +184,7 @@ curl -uadmin:"${ADMIN_PASSWORD}" -X PUT -H 'Content-Type: application/json' \
         "syncDeletes" : true,
         "syncProperties" : true,
         "syncStatistics" : false,
-        "repoKey" : "docker-dev-local"
+        "repoKey" : "helm-local"
        }'
 
 #configure Access Federation in mesh
