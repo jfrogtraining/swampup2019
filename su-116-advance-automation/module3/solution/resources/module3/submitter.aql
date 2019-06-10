@@ -1,0 +1,4 @@
+items.find ({
+  "repo":"tomcat-local", 
+  "@submitter":"stanleyf"
+}).include ("repo","name","created")

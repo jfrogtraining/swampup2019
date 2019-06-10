@@ -1,0 +1,13 @@
+items.find ({
+        "type":"file",
+        "size":{"$gt":"3000000"},
+        "created_by":"jenkins",
+        "stat.downloads":{"$lte":"10"},
+        "$or":[
+            {"name":{"$match":"*.jar"}},
+            {"name":{"$match":"*.war"}}
+        ]
+})
+.include ("repo","path","name", "size", "artifact.module.build.name", "artifact.module.build.number", "created") 
+.sort({"$desc":["size","name"]})
+.limit(100)
