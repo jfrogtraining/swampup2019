@@ -193,7 +193,7 @@ step1-create1-application () {
    build_no=$1
    rootDir=$PWD
 
-   git clone https://github.com/jfrogtraining/project-examples
+   git clone https://github.com/jfrogtraining/project-examples 
    cd project-examples/gradle-examples/4/gradle-example-publish
    chmod 775 gradlew
    echo "Build Number is ${build_no}"
@@ -217,6 +217,7 @@ step2-create-docker-image-template () {
   echo "step2-create-docker-image-template  - building docker base for web applications"
   docker_fmr_build_name="step2-create-docker-image-stanleyf"
   docker_fmr_build_no=$1
+  rootDir=$PWD
 
   cd step2-dockerframework
 
@@ -224,20 +225,73 @@ step2-create-docker-image-template () {
   downloadDependenciesBuildInfo ${docker_fmr_build_name} ${docker_fmr_build_no}
 
   TAGNAME="${ARTDOCKER_REGISTRY}/docker-framework:${1}"
+  TAGNAMELATEST="${ARTDOCKER_REGISTRY}/docker-framework:latest"
   echo $TAGNAME
   docker login $ARTDOCKER_REGISTRY -u $USER -p $ART_PASSWORD
   echo "Building docker base image"
   docker build -t $TAGNAME .
+  docker tag $TAGNAME $TAGNAMELATEST
   echo "Publishing docker freamework base image to artifactory"
   jfrog rt dp $TAGNAME docker-virtual --build-name=${docker_fmr_build_name} --build-number=${docker_fmr_build_no} --server-id=${SERVER_ID}
+  jfrog rt dp $TAGNAMELATEST docker-virtual --build-name=${docker_fmr_build_name} --build-number=${docker_fmr_build_no} --server-id=${SERVER_ID}
   echo "Collecting environment variable for buildinfo"
   jfrog rt bce ${docker_fmr_build_name} ${docker_fmr_build_no}
   echo  "publishing buildinfo"
   jfrog rt bp ${docker_fmr_build_name} ${docker_fmr_build_no} --server-id=${SERVER_ID}
   docker rmi $TAGNAME
+  docker rmi $TAGNAMELATEST
   echo "Successfully deployed framework"
+  cd ${rootDir}
 }
 
+step3-create-docker-image-product () {
+  echo "step3-create-docker-image-product - building docker app "
+  docker_app_build_name="step3-create-docker-image-product"
+  docker_app_build_no=$1
+  rootDir=$PWD
+
+  cd step3-dockerapp
+  echo "Downloading dependencies"
+  getLatestGradleWar  "gradle-release-local" ${docker_app_build_name} ${docker_app_build_no}
+
+  TAGNAME="${ARTDOCKER_REGISTRY}/docker-app:${1}"
+  echo $TAGNAME
+  docker login $ARTDOCKER_REGISTRY -u $USER -p $ART_PASSWORD
+  echo "Building docker app image"
+  docker build -t $TAGNAME .
+
+  Test docker app
+  docker run -d -p 9191:8181 $TAGNAME
+  sleep 10
+  curl --retry 10 --retry-delay 5 -v http://localhost:9191
+
+  #Publish docker app
+  echo "Publishing docker freamework base image to artifactory"
+  jfrog rt dp $TAGNAME docker-virtual --build-name=${docker_app_build_name} --build-number=${docker_app_build_no} --server-id=${SERVER_ID}
+  
+  echo "Collecting environment variable for buildinfo"
+  jfrog rt bce ${docker_app_build_name} ${docker_app_build_no}
+  
+  echo  "publishing buildinfo"
+  jfrog rt bp ${docker_app_build_name} ${docker_app_build_no} --server-id=${SERVER_ID}
+  docker rmi $TAGNAME
+  echo "Successfuily deployed docke app"
+  cd ${rootDir}
+}
+
+getLatestGradleWar () {
+   REPO=$1
+   gb_name=$2
+   gb_no=$3
+
+   aqlString='items.find ({"repo":{"$eq":"gradle-release-local"},"name":{"$match":"webservice-*.war"},"@build.name":"step1-create-application-war-file"}).include("created","path","name").sort({"$desc" : ["created"]}).limit(1)'
+   local response=($(curl -s -u"${USER}":"${ART_PASSWORD}" -H 'Content-Type: text/plain' -X POST "${ART_URL}"/api/search/aql -d "${aqlString}"))
+   echo ${response[@]}
+   path=$(echo ${response[@]} | jq '.results[0].path' | sed 's/"//g')
+   name=$(echo ${response[@]} | jq '.results[0].name' | sed 's/"//g')
+   echo ${path}/${name}
+   jfrog rt dl gradle-release-local/${path}/${name} ./war/webservice.war --server-id=${SERVER_ID}  --flat=true --build-name=${gb_name} --build-number=${gb_no}
+}
 
 main () {
    #Exercise 3a 
@@ -262,12 +316,17 @@ main () {
    #generalAQLSearch "$(dirname "$PWD")/${LARGESTFOLDER}" #Excerise 3d-e
 
    #Exercise Step1-Create1-application
-   #gradle_build_number=4
+   #gradle_build_number=1
    #step1-create1-application ${gradle_build_number}
 
    #Exercise Step2-Create-Docker-Image
-   docker_fmr_build_number=8
-   step2-create-docker-image-template ${docker_fmr_build_number}
+   #docker_fmr_build_number=1
+   #step2-create-docker-image-template ${docker_fmr_build_number}
+
+   #Exercise Step3-Create Docker App 
+   #docker_app_build_number=1
+   #step3-create-docker-image-product ${docker_app_build_number}
+
 }
 
 main

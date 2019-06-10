@@ -11,6 +11,10 @@ downloadDependenciesBuildInfo () {
   jfrog rt dl ${HELM} ./ --server-id ${REMOTE_ART_ID} --props=swampup2019=ready <TBD>
 }
 
+# Builds the docker-framework with the jdk and tomcat downloaded from the previous exercise.  In addition to the docker image with the build number
+# as tag, need to also create a latest tag so that the docker-app build in step3 can pick it up.  The other alternative is to find the latest 
+# docker-framework build using AQL. 
+#
 step2-create-docker-image-template () {
   echo "step2-create-docker-image-template  - building docker base for web applications"
   docker_fmr_build_name="step2-create-docker-image-<TBD>"

@@ -1,0 +1,49 @@
+step3-create-docker-image-product () {
+  echo "step3-create-docker-image-product - building docker app "
+  docker_app_build_name="step3-create-docker-image-product"
+  docker_app_build_no=$1
+  rootDir=$PWD
+
+  cd step3-dockerapp
+  echo "Downloading dependencies"
+  getLatestGradleWar  "gradle-release-local" ${docker_app_build_name} ${docker_app_build_no}
+
+  TAGNAME="${ARTDOCKER_REGISTRY}/docker-app:${1}"
+  echo $TAGNAME
+  docker login $ARTDOCKER_REGISTRY -u $USER -p $ART_PASSWORD
+  echo "Building docker app image"
+  docker build -t $TAGNAME .
+
+  Test docker app
+  docker run -d -p 9191:8181 $TAGNAME
+  sleep 10
+  curl --retry 10 --retry-delay 5 -v http://localhost:9191
+
+  #Publish docker app
+  echo "Publishing docker freamework base image to artifactory"
+  jfrog rt dp $TAGNAME docker-virtual --build-name=${docker_app_build_name} --build-number=${docker_app_build_no} --server-id=${SERVER_ID}
+  
+  echo "Collecting environment variable for buildinfo"
+  jfrog rt bce ${docker_app_build_name} ${docker_app_build_no}
+  
+  echo  "publishing buildinfo"
+  jfrog rt bp ${docker_app_build_name} ${docker_app_build_no} --server-id=${SERVER_ID}
+  docker rmi $TAGNAME
+  echo "Successfuily deployed docke app"
+  cd ${rootDir}
+}
+
+getLatestGradleWar () {
+   REPO=$1
+   gb_name=$2
+   gb_no=$3
+
+   aqlString='items.find ({"repo":{"$eq":"gradle-release-local"},"name":{"$match":"webservice-*.war"},"@build.name":"step1-create-application-war-file"}).include("created","path","name").sort({"$desc" : ["created"]}).limit(1)'
+   local response=($(curl -s -u"${USER}":"${ART_PASSWORD}" -H 'Content-Type: text/plain' -X POST "${ART_URL}"/api/search/aql -d "${aqlString}"))
+   echo ${response[@]}
+   path=$(echo ${response[@]} | jq '.results[0].path' | sed 's/"//g')
+   name=$(echo ${response[@]} | jq '.results[0].name' | sed 's/"//g')
+   echo ${path}/${name}
+   jfrog rt dl gradle-release-local/${path}/${name} ./war/webservice.war --server-id=${SERVER_ID}  --flat=true --build-name=${gb_name} --build-number=${gb_no}
+}
+
