@@ -193,15 +193,15 @@ curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
 #Lab 6
 ################################################
 #Get service ids
-export id_main=$(curl -uadmin:$ADMIN_PASSWORD -X POST  http://jfrog.local/artifactory/api/system/service_id)
+export id_main=$(curl -uadmin:$ADMIN_PASSWORD -X GET  http://jfrog.local/artifactory/api/system/service_id)
 
 sed -ie s#jfrt@...#$id_main#g $SCRIPT_DIR/lab6/release-bundle.json
 
 #Create and sign a Release Bundle
-curl -uadmin:$ADMIN_PASSWORD http://jfrog.local:PORTDISTRIB/api/v1/release_bundle -H "Content-Type: application/json" -T $SCRIPT_DIR/lab6/release-bundle.json
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local:8083/api/v1/release_bundle -H "Content-Type: application/json" -T $SCRIPT_DIR/lab6/release-bundle.json
 
 #Distribute the Release Bundle
-curl -uadmin:$ADMIN_PASSWORD http://jfrog.local:PORTDISTRIB/api/v1/distribution/MySwampupProduct/1.0 -H "Content-Type: application/json" -T $SCRIPT_DIR/lab6/distribution.json
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local:8083/api/v1/distribution/MySwampupProduct/1.0 -H "Content-Type: application/json" -T $SCRIPT_DIR/lab6/distribute.json
 
 
 

@@ -1,0 +1,11 @@
+{
+    "dry_run": false,
+    "distribution_rules": [
+      {
+        "service_name": "?wildcard*",
+        "site_name": "?wildcard*",
+        "city_name": "?wildcard*",
+        "country_codes": ["?wildcard*"]
+      }
+    ]
+  }

@@ -1,0 +1,34 @@
+{
+    "name": "",
+    "version": "",
+    "dry_run": false,
+    "sign_immediately": true,
+    "storing_repository": "repository-name",
+    "store_at_source_artifactory": true,
+    "description": "",
+    "release_notes": {
+      "syntax": "markdown|asciidoc|plain_text",
+      "content": ""
+    },
+    "spec": {
+      "source_artifactory_id": "jfrt@...",
+      "queries": [
+        {
+          "aql": "items.find({ \"repo\" : \"example-repo-local\" })",
+          "query_name": "",
+          "mappings": [
+            {
+              "input": "regex",
+              "output": "$1/$2"
+            }
+          ],
+          "added_props": [
+            {
+              "key": "",
+              "values": [""]
+            }
+          ]
+        }
+      ]
+    }
+  }

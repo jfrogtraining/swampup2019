@@ -1,0 +1,25 @@
+{
+    "name": "MySwampupProduct",
+    "version": "1.0",
+    "dry_run": false,
+    "sign_immediately": true,
+    "store_at_source_artifactory": true,
+    "description": "",
+    "release_notes": {
+      "syntax": "markdown",
+      "content": "First release for test"
+    },
+    "spec": {
+      "source_artifactory_id": "jfrt@...",
+      "queries": [
+        {
+          "aql": "items.find({ \"repo\" : \"docker-prod-local\", \"artifact.module.build.name\" : \"step4-create-docker-app\",\"path\" : {\"$match\":\"*846*\" }})",
+          "query_name": "docker-app"
+        },
+        {
+          "aql": "items.find({ \"repo\" : \"helm-local\", \"artifact.module.build.name\" : \"step5-create-docker-multi-app-helm-chart\",\"artifact.module.build.number\":\"578\" })",
+          "query_name": "helm-chart"
+        }
+      ]
+    }
+  }
