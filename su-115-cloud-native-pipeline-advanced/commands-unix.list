@@ -50,14 +50,142 @@ curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/reposito
 ################################################
 #Lab 5
 ################################################
-#create a full mesh topology for docker repositories
+#Enable replication for build information
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/replications/artifactory-build-info -H "content-type: application/vnd.org.jfrog.artifactory.replications.ReplicationConfigRequest+json" -T $SCRIPT_DIR/lab5/buildReplication.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/replications/artifactory-build-info -H "content-type: application/vnd.org.jfrog.artifactory.replications.ReplicationConfigRequest+json" -T $SCRIPT_DIR/lab5/buildReplicationBack.json
+
 
 #create same repo structure on each site
+#Java repositories
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/gradle-dev-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-gradle-dev-local-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/gradle-release-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-gradle-dev-local-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/jcenter -H "content-type: application/vnd.org.jfrog.artifactory.repositories.RemoteRepositoryConfiguration+json" -T $SCRIPT_DIR/init/jcenter-remote-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/libs-releases -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-gradle-release-virtual-config.json
 
-#create repo target for replication
+#docker repositories
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/docker-dev-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/docker-prod-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
 
-#create virtual repositories
+#helm repository
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/helm-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
 
+#Create replications target for meshed dev repo
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/gradle-dev-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-gradle-dev-local-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/gradle-dev-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-gradle-dev-local-config.json
+
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/docker-dev-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/docker-dev-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
+
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/helm-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/helm-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
+
+#Setup replications for meshed dev repo
+curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
+      http://jfrog.local/artifactory/api/replications/gradle-dev-local -d '{
+        "url" : "http://jfrog.local:8092/artifactory/gradle-dev-local-satellite",
+        "username":"admin",
+        "password":"'"${ADMIN_PASSWORD}"'",
+        "enableEventReplication" : true,
+        "enabled" : true,
+        "cronExp" : "0 0 13 * * ?",
+        "syncDeletes" : true,
+        "syncProperties" : true,
+        "syncStatistics" : false,
+        "repoKey" : "gradle-dev-local-satellite"
+       }'
+
+curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
+      http://jfrog.local:8092/artifactory/api/replications/gradle-dev-local -d '{
+        "url" : "http://jfrog.local/artifactory/gradle-dev-local-satellite",
+        "username":"admin",
+        "password":"'"${ADMIN_PASSWORD}"'",
+        "enableEventReplication" : true,
+        "enabled" : true,
+        "cronExp" : "0 0 14 * * ?",
+        "syncDeletes" : true,
+        "syncProperties" : true,
+        "syncStatistics" : false,
+        "repoKey" : "gradle-dev-local-satellite"
+       }'
+
+curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
+      http://jfrog.local/artifactory/api/replications/docker-dev-local -d '{
+        "url" : "http://jfrog.local:8092/artifactory/docker-dev-local-satellite",
+        "username":"admin",
+        "password":"'"${ADMIN_PASSWORD}"'",
+        "enableEventReplication" : true,
+        "enabled" : true,
+        "cronExp" : "0 0 15 * * ?",
+        "syncDeletes" : true,
+        "syncProperties" : true,
+        "syncStatistics" : false,
+        "repoKey" : "docker-dev-local-satellite"
+       }'
+
+curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
+      http://jfrog.local:8092/artifactory/api/replications/docker-dev-local -d '{
+        "url" : "http://jfrog.local/artifactory/docker-dev-local-satellite",
+        "username":"admin",
+        "password":"'"${ADMIN_PASSWORD}"'",
+        "enableEventReplication" : true,
+        "enabled" : true,
+        "cronExp" : "0 0 16 * * ?",
+        "syncDeletes" : true,
+        "syncProperties" : true,
+        "syncStatistics" : false,
+        "repoKey" : "docker-dev-local-satellite"
+       }'
+
+#update virtual repositories
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/docker-virtual -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab5/repository-docker-virtual-config.json
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local:8092/artifactory/api/repositories/docker-virtual -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab5/repository-docker-virtual-config.json
+
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/libs-releases -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab5/repository-gradle-release-virtual-config.json
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local:8092/artifactory/api/repositories/libs-releases -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab5/repository-gradle-release-virtual-config.json
+
+
+#Setup replications for star maturated repo
+curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
+      http://jfrog.local/artifactory/api/replications/gradle-release-local -d '{
+        "url" : "http://jfrog.local:8092/artifactory/gradle-release-local",
+        "name":"admin",
+        "password":"'"${ADMIN_PASSWORD}"'",
+        "enableEventReplication" : true,
+        "enabled" : true,
+        "cronExp" : "0 0 17 * * ?",
+        "syncDeletes" : true,
+        "syncProperties" : true,
+        "syncStatistics" : false,
+        "repoKey" : "gradle-release-local"
+       }'
+
+curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
+      http://jfrog.local/artifactory/api/replications/docker-prod-local -d '{
+        "url" : "http://jfrog.local:8092/artifactory/docker-prod-local",
+        "name":"admin",
+        "password":"'"${ADMIN_PASSWORD}"'",
+        "enableEventReplication" : true,
+        "enabled" : true,
+        "cronExp" : "0 0 18 * * ?",
+        "syncDeletes" : true,
+        "syncProperties" : true,
+        "syncStatistics" : false,
+        "repoKey" : "docker-prod-local"
+       }'
+
+curl -uadmin:"${ADMIN_PASSWORD}" -X PUT -H 'Content-Type: application/json' \
+      http://jfrog.local/api/replications/helm-local -d '{
+        "url" : "http://jfrog.local:8092/artifactory/helm-local",
+        "name":"admin",
+        "password":"'"${ADMIN_PASSWORD}"'",
+        "enableEventReplication" : true,
+        "enabled" : true,
+        "cronExp" : "0 0 19 * * ?",
+        "syncDeletes" : true,
+        "syncProperties" : true,
+        "syncStatistics" : false,
+        "repoKey" : "docker-dev-local"
+       }'
 
 #configure Access Federation in mesh
 

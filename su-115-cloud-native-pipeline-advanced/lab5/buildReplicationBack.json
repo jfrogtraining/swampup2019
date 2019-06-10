@@ -1,0 +1,15 @@
+{
+  "url" : "http://jfrog.local/artifactory/artifactory-build-info",
+  "socketTimeoutMillis" : 15000,
+  "username" : "admin",
+  "password" : "HXa30Dp3tA",
+  "enableEventReplication" : true,
+  "enabled" : true,
+  "cronExp" : "0 0 12 * * ?",
+  "syncDeletes" : true,
+  "syncProperties" : true,
+  "syncStatistics" : false,
+  "repoKey" : "artifactory-build-info",
+  "pathPrefix" : "",
+  "proxy":""
+}
