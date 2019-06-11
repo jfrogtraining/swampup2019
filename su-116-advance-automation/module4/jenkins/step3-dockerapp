@@ -1,0 +1,119 @@
+#!/usr/bin/env groovy
+import groovy.json.JsonSlurper
+
+// Create docker app with the latest war file (to do) and the latest docker framework build. 
+// The https://github.com/jfrogtraining/project-examples', branch: 'eplus-orbitera has the docker file for 
+// the build. The docker file is - 
+//    FROM jfrog.local:5000/docker-framework:latest ----> get the latest docker framework build. 
+//    MAINTAINER Stanley Fong stanleyf@jfrog.com
+//    ADD war/*.war /home/exec/tomcat/webapps/swampup.war
+//    CMD /bin/bash -c cd /home/exec; /home/exec/tomcat/bin/catalina.sh run
+
+
+node {
+    def SERVER_URL = "http://jfrog.local/artifactory"
+    def rtServer = Artifactory.newServer url: SERVER_URL, credentialsId: CREDENTIALS
+    def buildInfo = Artifactory.newBuildInfo()
+    def jobName = env.JOB_NAME
+    def artUser = "admin"
+    def artPassword = "qwsDx6M1fr"
+
+    def REPO = "docker-virtual"
+    def PROMOTE_REPO = "docker-prod-local"
+    def SOURCE_REPO = "docker-stage-local"
+    def rtDocker = Artifactory.docker server: rtServer
+    def artdocker_registry = "jfrog.local:5000"
+    
+    def tagDockerApp
+    def tagName
+
+    stage ('Clone')
+      git url: 'https://github.com/jfrogtraining/project-examples', branch: 'eplus-orbitera'
+      currentBuild.displayName = BUILD_NUMBER
+      buildInfo.env.capture = true
+
+
+    //Fetch all depedencies from Artifactory
+    stage ('Dependencies') {
+        dir ('automation/docker-app') {
+            try {
+                println "Gather Released Docker Framework and Gradle War file"
+                def gradleWarDownload = """{
+                    "files": [
+                      {
+                        "pattern": "gradle-release-local/org/jfrog/example/gradle/webservice/1.1.2/*.war",
+                        "target": "war/webservice.war",
+                        "flat": "true"
+                      }
+                    ]
+                 }"""
+                rtServer.download(gradleWarDownload, buildInfo )
+            } catch (Exception e) {
+                println "Caught Exception during resolution. Message ${e.message}"
+                throw e
+            }
+        }
+    }
+
+    //Build docker image named docker-app
+    stage ('Build & Deploy') {
+        dir ('automation/docker-app') {
+            try {
+                retry(3) {
+                    tagDockerApp = "${artdocker_registry}/docker-app:${env.BUILD_NUMBER}"
+                    frameworkDockerLatest = "${artdocker_registry}/docker-framework:latest"
+
+                    docker.withRegistry ("https://${artdocker_registry}", CREDENTIALS) {
+                          sh "docker login -u ${artUser} -p ${artPassword} https://${artdocker_registry}"
+                          docker.build(tagDockerApp)
+                    }
+                    buildInfo = rtDocker.push(tagDockerApp, REPO, buildInfo)
+                    rtServer.publishBuildInfo buildInfo
+                } 
+            } catch (Exception e) {
+                    println "Caught exception during push ${e.message}"
+            }
+
+            sh 'docker rmi ' +tagDockerApp
+            sh 'docker rmi ' +frameworkDockerLatest
+        }
+    }
+
+    stage 'scan build'
+        def scanConfig = [
+                    'buildName'      : env.JOB_NAME,
+                    'buildNumber'    : env.BUILD_NUMBER,
+                    'failBuild'      : false
+                ]
+        def scanResult = rtServer.xrayScan scanConfig
+        echo scanResult as String
+
+    stage('Promote') {
+      dir ('automation/docker-framework') {
+        def promotionConfig = """ {
+              "targetRepo"         : "docker-stage-local",
+              "dockerRepository"   : "docker-app",
+              "tag"                : "${env.BUILD_NUMBER}",
+              "targetTag"          : "latest",
+              "copy"               : true
+            }"""
+
+          def createPromo = ["curl", "-X", "POST", "-H", "Content-Type: application/json", "-d", "${promotionConfig}", "-u", "${artUser}:${artPassword}", "${SERVER_URL}/api/docker/docker-stage-local/v2/promote"]
+
+          try {
+            def getPromoResponse = createPromo.execute().text
+            println "response is " + getPromoResponse
+            def jsonSlurper = new JsonSlurper()
+            def promoStatus = jsonSlurper.parseText("${getPromoResponse}")
+            if (promoStatus.error) {
+                 println "Promotion failed: " + promoStatus
+            }
+          } catch (Exception e) {
+              println "Promotion failed: ${e.message}"
+          }
+      }
+    }
+
+
+}
+  
