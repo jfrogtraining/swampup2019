@@ -174,70 +174,6 @@ generalAQLSearch () {
   done
 }
 
-# Exercise Step1-STEP1-CREATE-APPLICATION-WAR-FILE
-#
-# When running the build “jfrog rt gradlec” you will e prompt for the following: 
-# Is the Gradle Artifactory Plugin already applied in the build script (y/n) [n]? Y
-# Use Gradle wrapper (y/n) [n]? Y
-# Resolve dependencies from Artifactory (y/n) [y]? Y
-# Set Artifactory server ID (press Tab for options) [jfrogtraining]: swampup2018
-# Set repository for dependencies resolution (press Tab for options): jcenter
-# Deploy artifacts to Artifactory (y/n) [y]? Y
-# Set Artifactory server ID (press Tab for options) [jfrogtraining]: swampup2018Set repository for artifacts deployment (press Tab for options): gradle-release
-# Deploy Maven descriptor (y/n) [n]? Y
-# Deploy Ivy descriptor (y/n) [n]? n
-
-step1-create1-application () {
-   echo "step1-create1-application - building war application"
-   build_name="step1-stanleyf-application-war-file"
-   build_no=$1
-   rootDir=$PWD
-
-   git clone https://github.com/jfrogtraining/project-examples
-   cd project-examples/gradle-examples/4/gradle-example-publish
-   chmod 775 gradlew
-   echo "Build Number is ${build_no}"
-   # create a build configuration file for a gradle build. The command's argument is a path to a new file which will be created by the command
-   jfrog rt gradlec gradle-example.config 
-   # To run a gradle build
-   echo "Running gradle build"
-   jfrog rt gradle "clean artifactoryPublish -b ./build.gradle" gradle-example.config --build-name=${build_name} --build-number=${build_no}
-   # Environment variables are collected using the build-collect-env (bce) command.
-   echo "Collecting environment varilable for buildinfo"
-   jfrog rt bce ${build_name} ${build_no}
-   echo "Collecting git info i.e. jira tickets"
-   jfrog rt bag ${build_name} ${build_no} "${rootDir}/project-examples"
-   # publish the accumulated build information for a build to Artifactory
-   jfrog rt bp ${build_name} ${build_no} --server-id ${SERVER_ID}
-   echo "Successfully build application"
-   cd ${rootDir}
-}
-
-step2-create-docker-image-template () {
-  echo "step2-create-docker-image-template  - building docker base for web applications"
-  docker_fmr_build_name="step2-create-docker-image-stanleyf"
-  docker_fmr_build_no=$1
-
-  cd step2-dockerframework
-
-  echo "Downloading dependencies"
-  downloadDependenciesBuildInfo ${docker_fmr_build_name} ${docker_fmr_build_no}
-
-  TAGNAME="${ARTDOCKER_REGISTRY}/docker-framework:${1}"
-  echo $TAGNAME
-  docker login $ARTDOCKER_REGISTRY -u $USER -p $ART_PASSWORD
-  echo "Building docker base image"
-  docker build -t $TAGNAME .
-  echo "Publishing docker freamework base image to artifactory"
-  jfrog rt dp $TAGNAME docker-virtual --build-name=${docker_fmr_build_name} --build-number=${docker_fmr_build_no} --server-id=${SERVER_ID}
-  echo "Collecting environment variable for buildinfo"
-  jfrog rt bce ${docker_fmr_build_name} ${docker_fmr_build_no}
-  echo  "publishing buildinfo"
-  jfrog rt bp ${docker_fmr_build_name} ${docker_fmr_build_no} --server-id=${SERVER_ID}
-  docker rmi $TAGNAME
-  echo "Successfully deployed framework"
-}
-
 
 main () {
    #Exercise 3a 
@@ -262,12 +198,17 @@ main () {
    #generalAQLSearch "$(dirname "$PWD")/${LARGESTFOLDER}" #Excerise 3d-e
 
    #Exercise Step1-Create1-application
-   #gradle_build_number=4
+   #gradle_build_number=1
    #step1-create1-application ${gradle_build_number}
 
    #Exercise Step2-Create-Docker-Image
-   docker_fmr_build_number=8
-   step2-create-docker-image-template ${docker_fmr_build_number}
+   #docker_fmr_build_number=1
+   #step2-create-docker-image-template ${docker_fmr_build_number}
+
+   #Exercise Step3-Create Docker App 
+   #docker_app_build_number=1
+   #step3-create-docker-image-product ${docker_app_build_number}
+
 }
 
 main

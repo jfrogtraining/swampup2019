@@ -14,7 +14,7 @@
 
 step1-create1-application () {
    echo "step1-create1-application - building war application"
-   build_name="step1-stanleyf-application-war-file"
+   build_name="${STEP1_BLDNAME}"
    build_no=$1
    rootDir=$PWD
 
@@ -34,5 +34,7 @@ step1-create1-application () {
    jfrog rt bag ${build_name} ${build_no} "${rootDir}/project-examples"
    # publish the accumulated build information for a build to Artifactory
    jfrog rt bp ${build_name} ${build_no} --server-id ${SERVER_ID}
+   # Scan for vulnerabilities after you configure XRAY to watch your job 
+   #jfrog rt bs ${build_name} ${build_no}
    echo "Successfully build application"
 }

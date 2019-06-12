@@ -1,0 +1,59 @@
+# Build docker-app with latest version of the gradle webservice.war and docker-framework.  Use AQL to find the latest webservice.war file and use 
+# dockerfile to get the latest docker-framework build from artifactory. 
+#
+step3-create-docker-image-product () {
+  echo "step3-create-docker-image-product - building docker app "
+  docker_app_build_name="${STEP3_BLDNAME}"
+  docker_app_build_no=$1
+  rootDir=$PWD
+
+  cd step3-dockerapp
+  echo "Downloading dependencies"
+  getLatestGradleWar  "gradle-release-local" ${docker_app_build_name} ${docker_app_build_no}
+
+  TAGNAME="${ARTDOCKER_REGISTRY}/docker-app:${1}"
+  echo $TAGNAME
+  docker login $ARTDOCKER_REGISTRY -u $USER -p $ART_PASSWORD
+  echo "Building docker app image"
+  docker build -t $TAGNAME .
+
+#  Test docker app
+  docker run -d -p 9191:8181 $TAGNAME
+  sleep 10
+  curl --retry 10 --retry-delay 5 -v http://localhost:9191
+
+  #Publish docker app
+  echo "Publishing docker freamework base image to artifactory"
+  jfrog <TBD> $TAGNAME docker-virtual --build-name=${docker_app_build_name} --build-number=${docker_app_build_no} --server-id=${SERVER_ID}
+  
+  echo "Collecting environment variable for buildinfo"
+  jfrog <TBD>
+  
+  echo  "publishing buildinfo"
+  jfrog <TBD>
+
+  docker rmi $TAGNAME
+  echo "Successfuily deployed docke app"
+  cd ${rootDir}
+}
+
+# REPO - repository to search for the latest gradle war file 
+# gb_name - build name to search for 
+# gb_no - build number
+# the correct method is to use the results from the AQL Search instead of passing the build name and build number as parameters.  
+# Feel free to make the change. 
+#
+getLatestGradleWar () {
+   REPO=$1
+   gb_name=$2
+   gb_no=$3
+
+   aqlString='items.find ({"repo":{"$eq":"gradle-release-local"},"name":{"$match":"webservice-*.jar"},"<TBD>":"'${STEP1_BLDNAME}'"}).include("created","path","name").sort({"<TBD>" : ["<TBD>"]}).<TBD>'
+   local response=($(curl -s -u"${USER}":"${ART_PASSWORD}" -H 'Content-Type: text/plain' -X POST "${ART_URL}"/api/search/aql -d "${aqlString}"))
+   echo ${response[@]}
+   path=$(echo ${response[@]} | jq '.results[0].path' | sed 's/"//g')
+   name=$(echo ${response[@]} | jq '.results[0].name' | sed 's/"//g')
+   echo ${path}/${name}
+   jfrog rt dl gradle-release-local/${path}/${name} ./war/webservice.war --server-id=${SERVER_ID}  --flat=true --build-name=${gb_name} --build-number=${gb_no}
+}
+

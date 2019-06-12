@@ -1,0 +1,43 @@
+#!/usr/bin/env groovy
+import groovy.json.JsonSlurper
+
+node {
+    def SERVER_URL = "http://jfrog.local/artifactory"
+    def artServer = Artifactory.newServer url: SERVER_URL, credentialsId: CREDENTIALS
+    def buildInfo = Artifactory.newBuildInfo()
+    def artUser = "admin"
+    def artPassword = "qwsDx6M1fr"
+    def CLEAN_REPO = "YES"
+    def jobName = env.JOB_NAME
+    def DEPLOY_REPO = 'gradle-release'
+
+    stage 'Clone' 
+        git url: 'https://github.com/jfrogtraining/project-examples.git', branch: 'eplus-orbitera'
+        currentBuild.displayName = BUILD_NUMBER
+
+    stage 'Build webservices'
+        def rtGradle = Artifactory.newGradleBuild()
+        rtGradle.tool = GRADLE_TOOL // Tool name from Jenkins configuration
+        rtGradle.deployer repo:DEPLOY_REPO, server: artServer
+        rtGradle.resolver repo:DEPLOY_REPO, server: artServer
+        rtGradle.deployer.addProperty("unit-test", "pass").addProperty("qa-team", "platform", "ui")
+        buildInfo.env.capture = true
+
+        if(CLEAN_REPO == "YES") {
+            sh 'rm -rf ~/.gradle/caches'
+        }
+        rtGradle.run rootDir: "gradle-examples/4/gradle-example-ci-server/", buildFile: 'build.gradle', tasks: 'clean artifactoryPublish', buildInfo: buildInfo
+
+    //Publish artifacts to Artifactory along with build information and scan build artifacts in Xray
+    stage 'Publish Build Information'
+        artServer.publishBuildInfo buildInfo
+
+    stage 'scan build'
+        def scanConfig = [
+                    'buildName'      : env.JOB_NAME,
+                    'buildNumber'    : env.BUILD_NUMBER,
+                    'failBuild'      : false
+                ]
+        def scanResult = artServer.xrayScan scanConfig
+        echo scanResult as String
+}

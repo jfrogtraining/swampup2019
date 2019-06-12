@@ -1,0 +1,116 @@
+#!/usr/bin/env groovy
+import groovy.json.JsonSlurper
+import hudson.FilePath
+
+node {
+    def SERVER_URL = "http://jfrog.local/artifactory"
+    def rtServer = Artifactory.newServer url: SERVER_URL, credentialsId: CREDENTIALS
+    def buildInfo = Artifactory.newBuildInfo()
+    def jobName = env.JOB_NAME
+    def artUser = "admin"
+    def artPassword = "qwsDx6M1fr"
+
+    def REPO = "docker-virtual"
+    def PROMOTE_REPO = "docker-prod-local"
+    def SOURCE_REPO = "docker-stage-local"
+    def artdocker_registry = "jfrog.local:5000"
+
+    def tagName
+
+    stage ('Clone')
+      git url: 'https://github.com/jfrogtraining/project-examples', branch: 'eplus-orbitera'
+      currentBuild.displayName = BUILD_NUMBER
+      buildInfo.env.capture = true
+
+    //Fetch all depensencies from Artifactory
+    stage('Dependencies') {
+        dir('automation/docker-framework') {
+            try {
+                println "Gather Java and Tomcat"
+                def downloadSpec = """{
+                         "files": [
+                          {
+                           "pattern": "tomcat-local/java/jdk-8u91-linux-x64.tar.gz",
+                           "target": "jdk/jdk-8-linux-x64.tar.gz",
+                           "flat":"true"
+                          },
+                          {
+                           "pattern": "tomcat-local/org/apache/apache-tomcat/apache-tomcat-8.0.32.tar.gz",
+                           "target": "tomcat/apache-tomcat-8.tar.gz",
+                           "flat":"true"
+                          }
+                          ]
+                        }"""
+
+                rtServer.download (downloadSpec, buildInfo)
+                if (fileExists('jdk/jdk-8-linux-x64.tar.gz') && fileExists('tomcat/apache-tomcat-8.tar.gz')) {
+                    println "Downloaded dependencies"
+                } else {
+                    println "Missing Dependencies either jdk or tomcat - see listing below:"
+                    sh 'ls -d */*'
+                    throw new FileNotFoundException("Missing Dependencies")
+                }
+            } catch (Exception e) {
+                println "Caught exception during resolution.  Message ${e.message}"
+                throw e
+            }
+        }
+    }
+
+    //Build docker image named "docker-framework" with Java 8 and Tomcat
+    stage('Build & Deploy') {
+        try {
+          dir ('automation/docker-framework') {
+                def rtDocker = Artifactory.docker server: rtServer
+                tagName = "${artdocker_registry}/docker-framework:${env.BUILD_NUMBER}"
+
+                docker.withRegistry ("https://${artdocker_registry}", CREDENTIALS) {
+                      sh "docker login -u ${artUser} -p ${artPassword} http://${artdocker_registry}"
+                      docker.build(tagName)
+                }
+                buildInfo = rtDocker.push(tagName, REPO, buildInfo)
+                rtServer.publishBuildInfo buildInfo
+          }
+        } catch (ConcurrentModificationException CME) {
+            println "Caught ConcurrentModificationException and ignore..."
+        } catch (Exception e) {
+          println "Build failed with exception: $e"
+          throw e
+        }
+    }
+
+    stage 'scan build'
+        def scanConfig = [
+                    'buildName'      : env.JOB_NAME,
+                    'buildNumber'    : env.BUILD_NUMBER,
+                    'failBuild'      : false
+                ]
+        def scanResult = rtServer.xrayScan scanConfig
+        echo scanResult as String
+
+    stage('Promote') {
+      dir ('automation/docker-framework') {
+        def promotionConfig = """ {
+              "targetRepo"         : "docker-stage-local",
+              "dockerRepository"   : "docker-framework",
+              "tag"                : "${env.BUILD_NUMBER}",
+              "targetTag"          : "latest",
+              "copy"               : true
+            }"""
+
+          def createPromo = ["curl", "-X", "POST", "-H", "Content-Type: application/json", "-d", "${promotionConfig}", "-u", "${artUser}:${artPassword}", "${SERVER_URL}/api/docker/docker-stage-local/v2/promote"]
+
+          try {
+            def getPromoResponse = createPromo.execute().text
+            println "response is " + getPromoResponse
+            def jsonSlurper = new JsonSlurper()
+            def promoStatus = jsonSlurper.parseText("${getPromoResponse}")
+            if (promoStatus.error) {
+                 println "Promotion failed: " + promoStatus
+            }
+          } catch (Exception e) {
+              println "Promotion failed: ${e.message}"
+          }
+      }
+    }
+}

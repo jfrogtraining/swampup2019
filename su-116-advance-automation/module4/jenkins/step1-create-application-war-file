@@ -1,0 +1,53 @@
+#!/usr/bin/env groovy
+import groovy.json.JsonSlurper
+
+// Step1-create-application-war-file
+// Artifactory Jenkins plugin has been installed on this Jenkins making it possible to use Artifactory Jenkins 
+// methods i.e. Artifactory class. 
+//
+// Reference: 
+// https://www.jfrog.com/confluence/display/RTF/Working+With+Pipeline+Jobs+in+Jenkins 
+//
+
+node {
+    def SERVER_URL = "http://jfrog.local/artifactory"
+    def artServer = Artifactory.newServer url: SERVER_URL, credentialsId: CREDENTIALS
+    def buildInfo = Artifactory.newBuildInfo()
+    def artUser = "admin"
+    def artPassword = "qwsDx6M1fr"
+    def CLEAN_REPO = "YES"
+    def jobName = env.JOB_NAME
+    def DEPLOY_REPO = 'gradle-release'
+
+    // Source code for this exercise. 
+    stage 'Clone' 
+        git url: 'https://github.com/jfrogtraining/project-examples.git', branch: 'eplus-orbitera'
+        currentBuild.displayName = BUILD_NUMBER
+
+    // Gradle Build 
+    stage 'Build webservices'
+        def rtGradle = Artifactory.newGradleBuild()
+        rtGradle.tool = GRADLE_TOOL // Tool name from Jenkins configuration
+        rtGradle.<TBD> repo:<TBD>, server: artServer
+        rtGradle.<TBD> repo:<TBD>, server: artServer
+        rtGradle.deployer.addProperty("<TBD>", "<TBD>").addProperty("<TBD>", "<TBD>", "<TBD>")
+        buildInfo.env.capture = true
+
+        if(CLEAN_REPO == "YES") {
+            sh 'rm -rf ~/.gradle/caches'
+        }
+        rtGradle.run rootDir: "gradle-examples/4/gradle-example-ci-server/", buildFile: 'build.gradle', tasks: 'clean artifactoryPublish', buildInfo: buildInfo
+
+    //Publish artifacts to Artifactory along with build information and scan build artifacts in Xray
+    stage 'Publish Build Information'
+        artServer.<TBD>
+
+    stage 'scan build'
+        def scanConfig = [
+                    'buildName'      : env.JOB_NAME,
+                    'buildNumber'    : env.BUILD_NUMBER,
+                    'failBuild'      : false
+                ]
+        def scanResult = artServer.<TBD>,
+        echo scanResult as String
+}
