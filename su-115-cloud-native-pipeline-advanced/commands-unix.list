@@ -17,11 +17,8 @@ export ADMIN_PASSWORD=<password>
 ################################################
 #init
 ################################################
-#Remove uneeded repository from templated environment
-
-#Create base needed repository fro gradle (gradle-dev-local, gradle-release-local, libs-release)
+#Create base needed repository for gradle (gradle-dev-local, jcenter, libs-release)
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/gradle-dev-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-gradle-dev-local-config.json
-curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/gradle-release-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-gradle-dev-local-config.json
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/jcenter -H "content-type: application/vnd.org.jfrog.artifactory.repositories.RemoteRepositoryConfiguration+json" -T $SCRIPT_DIR/init/jcenter-remote-config.json
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/libs-releases -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-gradle-release-virtual-config.json
 
@@ -41,8 +38,8 @@ curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/reposito
 ################################################
 #Lab 3
 ################################################
-#Create a helm-local repository
-curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/helm-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
+#Clean helm-local repository
+curl -uadmin:$ADMIN_PASSWORD -X DELETE http://jfrog.local/artifactory/helm-local
 
 #update helm virtual repository
 curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/helm-virtual -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-virtual-config.json
@@ -51,6 +48,8 @@ curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/reposito
 #Lab 5
 ################################################
 #Enable replication for build information
+
+#Review json files for the build information replication and adjust the password
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/replications/artifactory-build-info -H "content-type: application/vnd.org.jfrog.artifactory.replications.ReplicationConfigRequest+json" -T $SCRIPT_DIR/lab5/buildReplication.json
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/replications/artifactory-build-info -H "content-type: application/vnd.org.jfrog.artifactory.replications.ReplicationConfigRequest+json" -T $SCRIPT_DIR/lab5/buildReplicationBack.json
 
@@ -187,7 +186,6 @@ curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
         "repoKey" : "helm-local"
        }'
 
-#configure Access Federation in mesh
 
 ################################################
 #Lab 6

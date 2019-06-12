@@ -13,11 +13,11 @@
       "source_artifactory_id": "jfrt@...",
       "queries": [
         {
-          "aql": "items.find({ \"repo\" : \"docker-prod-local\", \"artifact.module.build.name\" : \"step4-create-docker-app\",\"path\" : {\"$match\":\"*846*\" }})",
+          "aql": "items.find({ \"repo\" : \"docker-prod-local\", \"artifact.module.build.name\" : \"su-115-step3-docker-app\",\"path\" : {\"$match\":\"*5*\" }})",
           "query_name": "docker-app"
         },
         {
-          "aql": "items.find({ \"repo\" : \"helm-local\", \"artifact.module.build.name\" : \"step5-create-docker-multi-app-helm-chart\",\"artifact.module.build.number\":\"578\" })",
+          "aql": "items.find({ \"repo\" : \"helm-local\", \"artifact.module.build.name\" : \"su-115-step4-helm-chart\",\"artifact.module.build.number\":\"6\" })",
           "query_name": "helm-chart"
         }
       ]

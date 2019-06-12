@@ -8,7 +8,7 @@ node {
 
     //Configure Artifactroy repository to pull/push artifacts
     stage 'Artifactory configuration'
-        rtGradle.tool = 'GRADLE_TOOL' // Tool name from Jenkins configuration
+        rtGradle.tool = 'GRADLE_TOOL' // Tool name from Jenkins configuration 'gradle-4.6'
         rtGradle.deployer repo:'gradle-dev-local', server: server
         rtGradle.resolver repo:'libs-releases', server: server
         rtGradle.deployer.addProperty("unit-test", "pass").addProperty("qa-team", "platform", "ui")

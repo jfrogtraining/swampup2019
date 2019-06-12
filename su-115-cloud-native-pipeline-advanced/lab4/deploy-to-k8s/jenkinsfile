@@ -11,9 +11,11 @@ node {
 
     stage('Configure helm & add Artifactory repo') {
         /* Configure helm client to point to k8s cluster */
+        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
          //ref : https://helm.sh/docs/helm/#helm-repo-add
          //https://helm.sh/docs/helm/#helm-repo-update
          // OR go in artifactory home page, select helm-virtual repository -> set me up
+        }
     }
 
     stage('Deploy chart pulling from Artifactory') {
