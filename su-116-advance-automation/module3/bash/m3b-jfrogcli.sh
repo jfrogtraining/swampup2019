@@ -5,7 +5,7 @@ loginArt () {
    echo "Configuring JFROG CLI artifactoryURL: ${REMOTE_ARTIFACTORY};  server-id: ${REMOTE_ART_ID}; with APIKey:${REMOTE_ART_APIKEY}"
    jfrog <TBD> ${REMOTE_ART_ID} --url=${REMOTE_ARTIFACTORY} --apikey=${REMOTE_ART_APIKEY}
    echo "Configuring JFROG CLI artifactoryURL: ${ART_URL};  server-id: ${SERVER_ID}; with APIKey:${USER_APIKEY}"
-   jfrog <TBD> ${SERVER_ID} --url=${ART_URL} --apikey=${USER_APIKEY}
+   jfrog <TBD> ${SERVER_ID} --url=${ART_URL} --user={USER} --password={ART_PASSWORD}
    jfrog <TBD> show
 }
 

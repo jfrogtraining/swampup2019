@@ -289,7 +289,7 @@ getLatestGradleWar () {
    gb_name=$2
    gb_no=$3
 
-   aqlString='items.find ({"repo":{"$eq":"gradle-release-local"},"name":{"$match":"webservice-*.jar"},"@build.name":"${STEP1_BLDNAME}"}).include("created","path","name").sort({"$desc" : ["created"]}).limit(1)'
+   aqlString='items.find ({"repo":{"$eq":"gradle-release-local"},"name":{"$match":"webservice-*.jar"},"@build.name":"'${STEP1_BLDNAME}'"}).include("created","path","name").sort({"$desc" : ["created"]}).limit(1)'
    local response=($(curl -s -u"${USER}":"${ART_PASSWORD}" -H 'Content-Type: text/plain' -X POST "${ART_URL}"/api/search/aql -d "${aqlString}"))
    echo ${response[@]}
    path=$(echo ${response[@]} | jq '.results[0].path' | sed 's/"//g')

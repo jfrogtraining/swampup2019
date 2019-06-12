@@ -17,7 +17,7 @@ step3-create-docker-image-product () {
   echo "Building docker app image"
   docker build -t $TAGNAME .
 
-  Test docker app
+#  Test docker app
   docker run -d -p 9191:8181 $TAGNAME
   sleep 10
   curl --retry 10 --retry-delay 5 -v http://localhost:9191
@@ -48,7 +48,7 @@ getLatestGradleWar () {
    gb_name=$2
    gb_no=$3
 
-   aqlString='items.find ({"repo":{"$eq":"gradle-release-local"},"name":{"$match":"webservice-*.war"},"<TBD>":"${STEP1_BLDNAME}"}).include("created","path","name").sort({"<TBD>" : ["<TBD>"]}).<TBD>'
+   aqlString='items.find ({"repo":{"$eq":"gradle-release-local"},"name":{"$match":"webservice-*.jar"},"<TBD>":"'${STEP1_BLDNAME}'"}).include("created","path","name").sort({"<TBD>" : ["<TBD>"]}).<TBD>'
    local response=($(curl -s -u"${USER}":"${ART_PASSWORD}" -H 'Content-Type: text/plain' -X POST "${ART_URL}"/api/search/aql -d "${aqlString}"))
    echo ${response[@]}
    path=$(echo ${response[@]} | jq '.results[0].path' | sed 's/"//g')
