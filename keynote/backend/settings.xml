@@ -1,0 +1,16 @@
+<settings>
+    <profiles>
+        <profile>
+            <id>artifactory-plugin-properties</id>
+            <properties>
+                <username>admin</username>
+                <password>password</password>
+                <artifactoryUrl>http://localhost:8081/artifactory</artifactoryUrl>
+            </properties>
+        </profile>
+    </profiles>
+
+    <activeProfiles>
+        <activeProfile>artifactory-plugin-properties</activeProfile>
+    </activeProfiles>
+</settings>

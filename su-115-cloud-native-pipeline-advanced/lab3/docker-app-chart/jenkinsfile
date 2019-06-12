@@ -8,7 +8,7 @@ node {
     stage('Install helm & JFrog CLI') {
         /* This installs helm client and JFrog Cli */
         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-            sh "./jfrog rt config --url ${SERVER_URL} --user ${env.USERNAME} --password ${env.PASSWORD}"
+            sh "jfrog rt config --url ${SERVER_URL} --user ${env.USERNAME} --password ${env.PASSWORD}"
             sh "curl -u ${env.USERNAME}:${env.PASSWORD} -O ${SERVER_URL}/generic-local/helm"
             sh "chmod 777 ./helm"
         }
@@ -28,6 +28,8 @@ node {
         sh "./helm package ./docker-app-chart/"
          
          //HERE USE THE JFROG CLI TO UPLOAD GENERATED HELM CHART IN ARTIFACTORY
+         //ref : https://www.jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-UploadingFiles
          //BONUS : USE THE CLI TO GATHER BUILD INFORMATION WITH ENVIRONMENT VARIABLES
+         //ref : https://www.jfrog.com/confluence/display/CLI/CLI+for+JFrog+Artifactory#CLIforJFrogArtifactory-CollectingBuildInformation
     }
 }
