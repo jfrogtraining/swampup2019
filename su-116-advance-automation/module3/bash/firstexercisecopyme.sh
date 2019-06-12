@@ -15,6 +15,7 @@ USER="admin"
 ACCESS_TOKEN=""
 USER_APIKEY=""
 SERVER_ID="us-site"
+ARTDOCKER_REGISTRY="jfrog.local:5000"
 
 REMOTE_ARTIFACTORY="http://jfrog.local:8092/artifactory"
 REMOTE_USER="admin"
@@ -34,6 +35,10 @@ LARGESTFOLDER="resources/module3/largestfolder.aql"
 CLEANUP="resources/module3/cleanup.aql"
 SUBMITTER="resources/module3/submitter.aql"
 
+#Build Names
+STEP1_BLDNAME="step1-create-application-war-file"
+STEP2_BLDNAME="step2-create-docker-image-template"
+STEP3_BLDNAME="step3-create-docker-image-product"
 
 # Exercise 3a - Create User and Repositories
 createUser () {
@@ -100,6 +105,18 @@ main () {
    #latestDockerTag "docker-prod-local" "docker-app" #Exercise 3d-c
    #generalAQLSearch "$(dirname "$PWD")/${CLEANUP}"      #Excerise 3d-d
    #generalAQLSearch "$(dirname "$PWD")/${LARGESTFOLDER}" #Excerise 3d-e
+
+   #Exercise Step1-Create1-application
+   #gradle_build_number=1
+   #step1-create1-application ${gradle_build_number}
+
+   #Exercise Step2-Create-Docker-Image
+   #docker_fmr_build_number=1
+   #step2-create-docker-image-template ${docker_fmr_build_number}
+
+   #Exercise Step3-Create Docker App
+   #docker_app_build_number=1
+   #step3-create-docker-image-product ${docker_app_build_number}
 }
 
 main

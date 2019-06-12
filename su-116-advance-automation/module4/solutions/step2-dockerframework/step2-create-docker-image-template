@@ -13,7 +13,7 @@ downloadDependenciesBuildInfo () {
 
 step2-create-docker-image-template () {
   echo "step2-create-docker-image-template  - building docker base for web applications"
-  docker_fmr_build_name="step2-create-docker-image-stanleyf"
+  docker_fmr_build_name="${STEP2_BLDNAME}"
   docker_fmr_build_no=$1
   rootDir=$PWD
 

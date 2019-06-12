@@ -20,7 +20,7 @@ class Module3 {
         println "repo path is ${repoYaml}" 
         artl.createRepo(repoYaml)
         artl.apiKeyUserCreate(user, password)
-        apiKey = artl.apiKeyGetUser(user, password)
+        def apiKey = artl.apiKeyGetUser(user, password)
         println "Api Key is ${apiKey}"
     }
 }

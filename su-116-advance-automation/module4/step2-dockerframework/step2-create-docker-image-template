@@ -17,8 +17,9 @@ downloadDependenciesBuildInfo () {
 #
 step2-create-docker-image-template () {
   echo "step2-create-docker-image-template  - building docker base for web applications"
-  docker_fmr_build_name="step2-create-docker-image-<TBD>"
+  docker_fmr_build_name="${STEP2_BLDNAME}"
   docker_fmr_build_no=$1
+  rootDir=$PWD
 
   cd step2-dockerframework
 
@@ -26,17 +27,29 @@ step2-create-docker-image-template () {
   downloadDependenciesBuildInfo ${docker_fmr_build_name} ${docker_fmr_build_no}
 
   TAGNAME="${ARTDOCKER_REGISTRY}/docker-framework:${1}"
+  TAGNAMELATEST="${ARTDOCKER_REGISTRY}/docker-framework:latest"
   echo $TAGNAME
+  
   docker login $ARTDOCKER_REGISTRY -u $USER -p $ART_PASSWORD
   echo "Building docker base image"
   docker build -t $TAGNAME .
+  
+# Tag docker-framework with both build number and latest. 
+  docker tag $TAGNAME $TAGNAMELATEST
+
   echo "Publishing docker freamework base image to artifactory"
   jfrog <TBD> $TAGNAME <TBD> --build-name=${docker_fmr_build_name} --build-number=${docker_fmr_build_no} --server-id=<TBD>
+  jfrog <TBD> $TAGNAMELATEST docker-virtual --build-name=${docker_fmr_build_name} --build-number=${docker_fmr_build_no} --server-id=${SERVER_ID}
+
   echo "Collecting environment variable for buildinfo"
   jfrog <TBD> ${docker_fmr_build_name} ${docker_fmr_build_no}
+  
   echo  "publishing buildinfo"
   jfrog <TBD> ${docker_fmr_build_name} ${docker_fmr_build_no} --server-id=${SERVER_ID}
+  
   docker rmi $TAGNAME
+  docker rmi $TAGNAMELATEST
   echo "Successfully deployed framework"
+  cd ${rootDir}
 }
 
