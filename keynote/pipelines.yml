@@ -2,8 +2,8 @@ resources:
   - name: go_gitRepo_demo
     type: GitRepo
     configuration:
-      path: eladh/swampup-go-service
-      gitProvider: eladh_github
+      path: jfrogtraining/keynote/service
+      gitProvider: jfrogtraining_github
 
   - name: svc_build_info_demo
     type: BuildInfo
@@ -22,8 +22,8 @@ resources:
   - name: backend_gitRepo_demo
     type: GitRepo
     configuration:
-      path: eladh/swampup-java-backend-service
-      gitProvider: eladh_github
+      path: jfrogtraining/keynote/backend
+      gitProvider: jfrogtraining_github
 
   - name: app_build_info_demo
     type: BuildInfo
@@ -42,8 +42,8 @@ resources:
   - name: frontend_gitRepo_demo
     type: GitRepo
     configuration:
-      path: eladh/swampup-vue-frontend
-      gitProvider: eladh_github
+      path: jfrogtraining/keynote/frontend
+      gitProvider: jfrogtraining_github
 
   - name: releaseBundle_demo
     type: ReleaseBundle
