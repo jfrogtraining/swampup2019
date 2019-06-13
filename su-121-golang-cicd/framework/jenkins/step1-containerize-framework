@@ -71,15 +71,7 @@ node {
 def testApp (tag) {
     docker.image(tag).withRun('-p 8282:8080') {c ->
         sleep 10
-        def stdout = sh(script: 'curl "http://localhost:8282/swampup/"', returnStdout: true)
-        if (stdout.contains("Be prepared to be amazed at KubeCon 2018!")) {
-            println "*** Passed Test: " + stdout
-        //    println "*** Passed Test"
-            return true
-       } else {
-            println "*** Failed Test: " + stdout
-            return false
-       }
+        //ToDo
     }
 }
 
