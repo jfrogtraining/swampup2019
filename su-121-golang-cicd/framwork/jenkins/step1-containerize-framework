@@ -20,7 +20,11 @@ node {
     stage ('Build & Deploy') {
             tagDockerApp = "${ART_DOCKER_REGISTRY}/su-121-golang-cicd:${env.BUILD_NUMBER}"
             println "su-121-golang-cicd Build"
-            docker.build(tagDockerApp, "-f su-121-golang-cicd/framwork/Dockerfile")
+            dir("su-121-golang-cicd/framework") {
+                sh (["curl","-Lo","statusok-linuxx86-1.1.1.tar.gz","http://jfrog.local:5000/artifactory/thirdparty-generic-release-local/github.com/sanathp/statusok-linuxx86-1.1.1.tar.gz"])
+                sh (["tar","-xzvf","statusok-linuxx86-1.1.1.tar.gz"])
+            }
+            docker.build(tagDockerApp, "su-121-golang-cicd/framework")
             println "Docker push" + tagDockerApp + " : " + REPO
             buildInfo = rtDocker.push(tagDockerApp, REPO, buildInfo)
             println "Docker Buildinfo"
@@ -28,7 +32,7 @@ node {
      }
 
     stage ("Retag latest image") {
-            reTagLatest (SOURCE_REPO)
+            //reTagLatest (SOURCE_REPO)
     }
 
     //Test docker image
@@ -58,8 +62,8 @@ node {
             promoteBuild (SOURCE_REPO, PROMOTE_REPO, ART_SERVER_URL)
 
             // rtServer.promote promotionConfig - occasionally will hang on dry run
-            reTagLatest (SOURCE_REPO)
-            reTagLatest (PROMOTE_REPO)
+            //reTagLatest (SOURCE_REPO)
+            //reTagLatest (PROMOTE_REPO)
      }
 
 }
