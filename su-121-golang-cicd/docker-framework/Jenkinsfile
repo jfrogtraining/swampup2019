@@ -27,12 +27,12 @@ node {
                         }"""
 
                 rtServer.download (downloadSpec, buildInfo)
-                sh 'ls -al'
-                if (fileExists('statusok-linuxx86-1.1.1.tar.gz') ) {
+                if (fileExists('statusok') && fileExists("config.json")) {
+                    sh 'chmod u+x statusok'
                     println "Downloaded dependencies"
                 } else {
                     println "Missing Dependencies either jdk or tomcat - see listing below:"
-                    sh 'ls -d */*'
+                    sh 'ls -al'
                     throw new FileNotFoundException("Missing Dependencies")
                 }
             } catch (Exception e) {
