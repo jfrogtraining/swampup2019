@@ -7,6 +7,9 @@ node {
     def rtDocker = Artifactory.docker server: rtServer
     def buildInfo = Artifactory.newBuildInfo()
     def ARTDOCKER_REGISTRY = "jfrog.local:5000"
+    def REPO = "docker-virtual"
+    def PROMOTE_REPO = "docker-prod-local"
+    def SOURCE_REPO = "docker-stage-local"
     def tagName
     buildInfo.env.capture = true
     //Fetch all depensencies from Artifactory
@@ -48,7 +51,7 @@ node {
                 tagName = "${ARTDOCKER_REGISTRY}/docker-framework:${env.BUILD_NUMBER}"
                 println "Docker Framework Build"
                 docker.build(tagName)
-                println "Docker pushing -->" + tagName + " To " + REPO
+                println "Docker pushing -->" + tagName + " To docker-virtual" 
                 buildInfo = rtDocker.push(tagName, "docker-virtual", buildInfo)
                 println "Docker Buildinfo"
                 rtServer.publishBuildInfo buildInfo
@@ -69,9 +72,9 @@ node {
             def promotionConfig = [
               'buildName'          : env.JOB_NAME,
               'buildNumber'        : env.BUILD_NUMBER,
-              'targetRepo'         : PROMOTE_REPO,
+              'targetRepo'         : "docker-prod-local",
               'comment'            : 'Framework test with latest version of application',
-              'sourceRepo'         : SOURCE_REPO,
+              'sourceRepo'         : "docker-stage-local",
               'status'             : 'Released',
               'includeDependencies': false,
               'copy'               : true
