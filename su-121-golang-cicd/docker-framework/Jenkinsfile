@@ -93,7 +93,7 @@ def updateDockerFile () {
 
 def reTagLatest (targetRepo) {
      def BUILD_NUMBER = env.BUILD_NUMBER
-     println "promote repo is ${PROMOTE_REPO}"
+     println "promote repo is ${SOURCE_REPO}"
      sh 'sed -E "s/@/$BUILD_NUMBER/" retag.json > retag_out.json'
      switch (targetRepo) {
           case PROMOTE_REPO :
