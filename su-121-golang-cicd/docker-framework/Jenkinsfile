@@ -2,7 +2,7 @@
 
 node {
     //Clone example project from GitHub repository
-    git url: 'https://github.com/jfrogtraining/kubernetes_example.git', branch : 'su-121-golang-cicd'
+    git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'su-121-golang-cicd'
     def rtServer = Artifactory.server SERVER_ID
     def rtDocker = Artifactory.docker server: rtServer
     def buildInfo = Artifactory.newBuildInfo()
