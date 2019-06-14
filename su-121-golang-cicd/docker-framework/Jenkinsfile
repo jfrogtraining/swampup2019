@@ -13,7 +13,7 @@ node {
     stage('Dependencies') {
         dir('docker-framework') {
             try {
-                println "Gather Java and Tomcat"
+                println "Gather statusok module"
 
                 def downloadSpec = """{
                          "files": [
@@ -26,6 +26,7 @@ node {
                         }"""
 
                 rtServer.download (downloadSpec, buildInfo)
+                sh 'ls -d */*'
                 if (fileExists('statusok-linuxx86-1.1.1.tar.gz') ) {
                     println "Downloaded dependencies"
                 } else {
