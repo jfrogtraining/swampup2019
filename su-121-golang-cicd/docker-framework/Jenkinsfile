@@ -93,20 +93,19 @@ def updateDockerFile () {
 
 def reTagLatest (targetRepo) {
      def BUILD_NUMBER = env.BUILD_NUMBER
-     println "promote repo is ${SOURCE_REPO}"
      sh 'sed -E "s/@/$BUILD_NUMBER/" retag.json > retag_out.json'
      switch (targetRepo) {
-          case PROMOTE_REPO :
-              sh 'sed -E "s/TARGETREPO/${PROMOTE_REPO}/" retag_out.json > retaga_out.json'
+          case "docker-prod-local" :
+              sh 'sed -E "s/TARGETREPO/docker-prod-local/" retag_out.json > retaga_out.json'
               break
-          case SOURCE_REPO :
-               sh 'sed -E "s/TARGETREPO/${SOURCE_REPO}/" retag_out.json > retaga_out.json'
+          case "docker-stage-local" :
+               sh 'sed -E "s/TARGETREPO/docker-stage-local/" retag_out.json > retaga_out.json'
                break
       }
       sh 'cat retaga_out.json'
       withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
           def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " " + SERVER_URL
-          def regTagStr = curlString +  "/api/docker/${SOURCE_REPO}/v2/promote -X POST -H 'Content-Type: application/json' -T retaga_out.json"
+          def regTagStr = curlString +  "/api/docker/docker-stage-local/v2/promote -X POST -H 'Content-Type: application/json' -T retaga_out.json"
           println "Curl String is " + regTagStr
           sh regTagStr
       }
@@ -133,7 +132,7 @@ def testFramework (tag) {
 def updateProperty (property) {
     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
             def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " " + "-X PUT " + SERVER_URL
-            def updatePropStr = curlString +  "/api/storage/${SOURCE_REPO}/docker-framework/${env.BUILD_NUMBER}?properties=${property}"
+            def updatePropStr = curlString +  "/api/storage/docker-stage-local/docker-framework/${env.BUILD_NUMBER}?properties=${property}"
             println "Curl String is " + updatePropStr
             sh updatePropStr
      }
