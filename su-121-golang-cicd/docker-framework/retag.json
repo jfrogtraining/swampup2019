@@ -1,0 +1,7 @@
+{
+  "targetRepo" : "TARGETREPO",
+  "dockerRepository" : "containerize-go-microservice",
+  "tag" : "@",
+  "targetTag" : "latest",
+  "copy": true
+}

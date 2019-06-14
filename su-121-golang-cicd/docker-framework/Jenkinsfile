@@ -49,7 +49,7 @@ node {
                 println "Docker Framework Build"
                 docker.build(tagName)
                 println "Docker pushing -->" + tagName + " To " + REPO
-                buildInfo = rtDocker.push(tagName, REPO, buildInfo)
+                buildInfo = rtDocker.push(tagName, "docker-virtual", buildInfo)
                 println "Docker Buildinfo"
                 rtServer.publishBuildInfo buildInfo
 
@@ -59,31 +59,7 @@ node {
     stage('Test') {
         dir('su-121-golang-cicd/docker-framework/framework-test') {
 
-            def gradleWarDownload = """{
-            "files": [
-                {
-                  "pattern": "gradle-release-local/org/jfrog/example/gradle/webservice/1.1.2/*.war",
-                  "target": "war/webservice.war",
-                  "props": "unit-test=pass",
-                  "flat": "true"
-                }
-              ]
-            }"""
-
-            rtServer.download(gradleWarDownload)
-            updateDockerFile()
-            def tagDockerFramework = "${ARTDOCKER_REGISTRY}/docker-framework-test:${env.BUILD_NUMBER}"
-            docker.build(tagDockerFramework)
-            if (testFramework(tagDockerFramework)) {
-                println "Setting property and promotion"
-                updateProperty ("functional-test=pass")
-                sh "docker rmi ${tagName}"
-            } else {
-                updateProperty ("functional-test=fail; failed-test=page-not-loaded")
-                currentBuild.result = 'UNSTABLE'
-                sh "docker rmi ${tagName}"
-                return
-            }
+            //ToDo
         }
     }
 
