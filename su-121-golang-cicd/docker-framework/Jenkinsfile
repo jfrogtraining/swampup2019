@@ -1,15 +1,14 @@
 #!/usr/bin/env groovy
-
+def ARTDOCKER_REGISTRY = "jfrog.local:5000"
+def REPO = "docker-virtual"
+def PROMOTE_REPO = "docker-prod-local"
+def SOURCE_REPO = "docker-stage-local"
 node {
     //Clone example project from GitHub repository
     git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'su-121-golang-cicd'
     def rtServer = Artifactory.newServer url: "http://jfrog.local/artifactory", credentialsId: CREDENTIALS
     def rtDocker = Artifactory.docker server: rtServer
     def buildInfo = Artifactory.newBuildInfo()
-    def ARTDOCKER_REGISTRY = "jfrog.local:5000"
-    def REPO = "docker-virtual"
-    def PROMOTE_REPO = "docker-prod-local"
-    def SOURCE_REPO = "docker-stage-local"
     def tagName
     buildInfo.env.capture = true
     //Fetch all depensencies from Artifactory
