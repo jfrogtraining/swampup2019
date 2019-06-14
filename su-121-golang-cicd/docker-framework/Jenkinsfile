@@ -6,6 +6,7 @@ node {
     def rtServer = Artifactory.newServer url: "http://jfrog.local/artifactory", credentialsId: CREDENTIALS
     def rtDocker = Artifactory.docker server: rtServer
     def buildInfo = Artifactory.newBuildInfo()
+    def ARTDOCKER_REGISTRY = "jfrog.local:5000"
     def tagName
     buildInfo.env.capture = true
     //Fetch all depensencies from Artifactory
