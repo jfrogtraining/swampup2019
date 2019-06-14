@@ -3,7 +3,7 @@
 node {
     //Clone example project from GitHub repository
     git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'su-121-golang-cicd'
-    def rtServer = Artifactory.newServer url: ART_SERVER_URL, credentialsId: CREDENTIALS
+    def rtServer = Artifactory.newServer url: "http://jfrog.local/artifactory", credentialsId: CREDENTIALS
     def rtDocker = Artifactory.docker server: rtServer
     def buildInfo = Artifactory.newBuildInfo()
     def tagName
