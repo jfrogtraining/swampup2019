@@ -74,7 +74,7 @@ getEUUserSecurity () {
 createRepo () {
   echo "Creating Repositories"
   local response=($(curl -s -u"admin":"${ART_PASSWORD}" -X PATCH -H "Content-Type: application/yaml" \
-       "${ART_URL}"//api/system/configuration -T $1))
+       "${ART_URL}"/api/system/configuration -T $1))
   echo ${response[@]}
 }
 

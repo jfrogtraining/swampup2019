@@ -35,6 +35,11 @@ LARGESTFOLDER="resources/module3/largestfolder.aql"
 CLEANUP="resources/module3/cleanup.aql"
 SUBMITTER="resources/module3/submitter.aql"
 
+#Build Names
+STEP1_BLDNAME="step1-create-application-war-file"
+STEP2_BLDNAME="step2-create-docker-image-template"
+STEP3_BLDNAME="step3-create-docker-image-product"
+
 
 # Exercise 3a - Create User and Repositories
 createUser () {
@@ -189,7 +194,7 @@ generalAQLSearch () {
 
 step1-create1-application () {
    echo "step1-create1-application - building war application"
-   build_name="step1-stanleyf-application-war-file"
+   build_name="${STEP1_BLDNAME}"
    build_no=$1
    rootDir=$PWD
 
@@ -215,7 +220,7 @@ step1-create1-application () {
 
 step2-create-docker-image-template () {
   echo "step2-create-docker-image-template  - building docker base for web applications"
-  docker_fmr_build_name="step2-create-docker-image-stanleyf"
+  docker_fmr_build_name="${STEP2_BLDNAME}"
   docker_fmr_build_no=$1
   rootDir=$PWD
 
@@ -246,7 +251,7 @@ step2-create-docker-image-template () {
 
 step3-create-docker-image-product () {
   echo "step3-create-docker-image-product - building docker app "
-  docker_app_build_name="step3-create-docker-image-product"
+  docker_app_build_name="${STEP3_BLDNAME}"
   docker_app_build_no=$1
   rootDir=$PWD
 
@@ -284,7 +289,7 @@ getLatestGradleWar () {
    gb_name=$2
    gb_no=$3
 
-   aqlString='items.find ({"repo":{"$eq":"gradle-release-local"},"name":{"$match":"webservice-*.war"},"@build.name":"step1-create-application-war-file"}).include("created","path","name").sort({"$desc" : ["created"]}).limit(1)'
+   aqlString='items.find ({"repo":{"$eq":"gradle-release-local"},"name":{"$match":"webservice-*.jar"},"@build.name":"'${STEP1_BLDNAME}'"}).include("created","path","name").sort({"$desc" : ["created"]}).limit(1)'
    local response=($(curl -s -u"${USER}":"${ART_PASSWORD}" -H 'Content-Type: text/plain' -X POST "${ART_URL}"/api/search/aql -d "${aqlString}"))
    echo ${response[@]}
    path=$(echo ${response[@]} | jq '.results[0].path' | sed 's/"//g')

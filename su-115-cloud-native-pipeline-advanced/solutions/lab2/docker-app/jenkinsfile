@@ -36,8 +36,9 @@ node {
     stage ('Build & Deploy') {
         dir ('docker-app') {
             sh "sed -ie 's#docker.artifactory#${ARTDOCKER_REGISTRY}#g' Dockerfile"
-            sh "sed -ie 's#:latest#:stable#g' Dockerfile"
             tagDockerApp = "${ARTDOCKER_REGISTRY}/docker-app:${env.BUILD_NUMBER}"
+            
+            sh "sed -ie 's#:latest#:stable#g' Dockerfile"
             println "Docker App Build"
             docker.build(tagDockerApp)
             println "Docker push" + tagDockerApp + " : " + REPO
@@ -68,7 +69,7 @@ node {
 
     //Promote docker image from staging local repo to production repo in Artifactory
      stage ('Promote') {
-        dir('docker-app/app-test') {
+        dir('docker-app') {
             def promotionConfig = [
               'buildName'          : env.JOB_NAME,
               'buildNumber'        : env.BUILD_NUMBER,

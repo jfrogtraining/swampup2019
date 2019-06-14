@@ -8,7 +8,7 @@ node {
     stage('Install helm & JFrog CLI') {
         /* This installs helm client and JFrog Cli */
         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-            sh "./jfrog rt config --url ${SERVER_URL} --user ${env.USERNAME} --password ${env.PASSWORD}"
+            sh "jfrog rt config --url ${SERVER_URL} --user ${env.USERNAME} --password ${env.PASSWORD}"
             sh "curl -u ${env.USERNAME}:${env.PASSWORD} -O ${SERVER_URL}/generic-local/helm"
             sh "chmod 777 ./helm"
         }
@@ -19,16 +19,17 @@ node {
          sh "./helm init  --client-only"
          sh "sed -i 's/0.1.1/0.1.${env.BUILD_NUMBER}/' docker-app-chart/Chart.yaml"
          sh "sed -i 's/latest/${IMAGE_TAG}/g' docker-app-chart/values.yaml"
+         sh "sed -i 's/docker.artifactory/jfrog.local:5000/g' docker-app-chart/values.yaml"
          //For minikube the service type is set to Node Port
          sh "sed -i 's/type: LoadBalancer/type: NodePort/g' docker-app-chart/values.yaml"
-         sh "sed -i 's/docker.artifactory/jfrog.local:5000/g' docker-app-chart/values.yaml"
+         
          
          
          sh "./helm package ./docker-app-chart/"
          
-         sh "./jfrog rt u '*.${env.BUILD_NUMBER}.tgz' ${REPO} --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER}"
-         sh "./jfrog rt bce ${env.JOB_NAME} ${env.BUILD_NUMBER}"
-         sh "./jfrog rt dl docker-prod-local/docker-app/${IMAGE_TAG}/manifest.json --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER}"
-         sh "./jfrog rt bp ${env.JOB_NAME} ${env.BUILD_NUMBER}"
+         sh "jfrog rt u '*.${env.BUILD_NUMBER}.tgz' ${REPO} --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER}"
+         sh "jfrog rt bce ${env.JOB_NAME} ${env.BUILD_NUMBER}"
+         sh "jfrog rt dl docker-prod-local/docker-app/${IMAGE_TAG}/manifest.json --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER}"
+         sh "jfrog rt bp ${env.JOB_NAME} ${env.BUILD_NUMBER}"
     }
 }

@@ -17,11 +17,8 @@ export ADMIN_PASSWORD=<password>
 ################################################
 #init
 ################################################
-#Remove uneeded repository from templated environment
-
-#Create base needed repository fro gradle (gradle-dev-local, gradle-release-local, libs-release)
+#Create base needed repository for gradle (gradle-dev-local, jcenter, libs-release)
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/gradle-dev-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-gradle-dev-local-config.json
-curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/gradle-release-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-gradle-dev-local-config.json
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/jcenter -H "content-type: application/vnd.org.jfrog.artifactory.repositories.RemoteRepositoryConfiguration+json" -T $SCRIPT_DIR/init/jcenter-remote-config.json
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/libs-releases -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-gradle-release-virtual-config.json
 
@@ -41,16 +38,28 @@ curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/reposito
 ################################################
 #Lab 3
 ################################################
-#Create a helm-local repository
-curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/helm-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
+#Create helm-dev-local repository
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/helm-dev-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
 
 #update helm virtual repository
 curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/helm-virtual -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-virtual-config.json
 
 ################################################
+#Lab 4 - BONUS
+################################################
+#Create helm-prod-local repository
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/helm-prod-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
+
+#update helm virtual repository
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/helm-virtual -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/solutions/lab4/repository-helm-virtual-config.json
+
+
+################################################
 #Lab 5
 ################################################
 #Enable replication for build information
+
+#Review json files for the build information replication and adjust the password
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/replications/artifactory-build-info -H "content-type: application/vnd.org.jfrog.artifactory.replications.ReplicationConfigRequest+json" -T $SCRIPT_DIR/lab5/buildReplication.json
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/replications/artifactory-build-info -H "content-type: application/vnd.org.jfrog.artifactory.replications.ReplicationConfigRequest+json" -T $SCRIPT_DIR/lab5/buildReplicationBack.json
 
@@ -67,7 +76,7 @@ curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repo
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/docker-prod-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
 
 #helm repository
-curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/helm-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/helm-dev-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
 
 #Create replications target for meshed dev repo
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/gradle-dev-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-gradle-dev-local-config.json
@@ -76,8 +85,8 @@ curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repo
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/docker-dev-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
 curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/docker-dev-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
 
-curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/helm-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
-curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/helm-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local/artifactory/api/repositories/helm-dev-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8092/artifactory/api/repositories/helm-dev-local-satellite -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
 
 #Setup replications for meshed dev repo
 curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
@@ -136,12 +145,43 @@ curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
         "repoKey" : "docker-dev-local-satellite"
        }'
 
+  curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
+      http://jfrog.local/artifactory/api/replications/helm-dev-local -d '{
+        "url" : "http://jfrog.local:8092/artifactory/helm-dev-local-satellite",
+        "username":"admin",
+        "password":"'"${ADMIN_PASSWORD}"'",
+        "enableEventReplication" : true,
+        "enabled" : true,
+        "cronExp" : "0 0 15 * * ?",
+        "syncDeletes" : true,
+        "syncProperties" : true,
+        "syncStatistics" : false,
+        "repoKey" : "helm-dev-local-satellite"
+       }'
+
+curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
+      http://jfrog.local:8092/artifactory/api/replications/helm-dev-local -d '{
+        "url" : "http://jfrog.local/artifactory/helm-dev-local-satellite",
+        "username":"admin",
+        "password":"'"${ADMIN_PASSWORD}"'",
+        "enableEventReplication" : true,
+        "enabled" : true,
+        "cronExp" : "0 0 16 * * ?",
+        "syncDeletes" : true,
+        "syncProperties" : true,
+        "syncStatistics" : false,
+        "repoKey" : "helm-dev-local-satellite"
+       }'
+
 #update virtual repositories
 curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/docker-virtual -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab5/repository-docker-virtual-config.json
 curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local:8092/artifactory/api/repositories/docker-virtual -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab5/repository-docker-virtual-config.json
 
 curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/libs-releases -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab5/repository-gradle-release-virtual-config.json
 curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local:8092/artifactory/api/repositories/libs-releases -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab5/repository-gradle-release-virtual-config.json
+
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local/artifactory/api/repositories/helm-virtual -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab5/repository-helm-virtual-config.json
+curl -uadmin:$ADMIN_PASSWORD -X POST http://jfrog.local:8092/artifactory/api/repositories/helm-virtual -H "content-type: application/vnd.org.jfrog.artifactory.repositories.VirtualRepositoryConfiguration+json" -T $SCRIPT_DIR/lab5/repository-helm-virtual-config.json
 
 
 #Setup replications for star maturated repo
@@ -174,8 +214,8 @@ curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
        }'
 
 curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
-      http://jfrog.local/artifactory/api/replications/helm-local -d '{
-        "url" : "http://jfrog.local:8092/artifactory/helm-local",
+      http://jfrog.local/artifactory/api/replications/helm-prod-local -d '{
+        "url" : "http://jfrog.local:8092/artifactory/helm-prod-local",
         "username":"admin",
         "password":"'"${ADMIN_PASSWORD}"'",
         "enableEventReplication" : true,
@@ -187,11 +227,18 @@ curl -uadmin:$ADMIN_PASSWORD -X PUT -H 'Content-Type: application/json' \
         "repoKey" : "helm-local"
        }'
 
-#configure Access Federation in mesh
 
 ################################################
 #Lab 6
 ################################################
+#Make sure docker-local exists on edge nodes
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8090/artifactory/api/repositories/docker-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8091/artifactory/api/repositories/docker-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/init/repository-docker-dev-local-config.json
+
+#Make sure helm-local repository
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8090/artifactory/api/repositories/helm-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
+curl -uadmin:$ADMIN_PASSWORD -X PUT http://jfrog.local:8091/artifactory/api/repositories/helm-local -H "content-type: application/vnd.org.jfrog.artifactory.repositories.LocalRepositoryConfiguration+json" -T $SCRIPT_DIR/lab3/repository-helm-local-config.json
+
 #Get service ids
 export id_main=$(curl -uadmin:$ADMIN_PASSWORD -X GET  http://jfrog.local/artifactory/api/system/service_id)
 
