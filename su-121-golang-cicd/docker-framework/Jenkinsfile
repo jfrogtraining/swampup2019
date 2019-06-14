@@ -27,7 +27,7 @@ node {
                         }"""
 
                 rtServer.download (downloadSpec, buildInfo)
-                sh 'ls -d */*'
+                sh 'ls -al */*'
                 if (fileExists('statusok-linuxx86-1.1.1.tar.gz') ) {
                     println "Downloaded dependencies"
                 } else {
