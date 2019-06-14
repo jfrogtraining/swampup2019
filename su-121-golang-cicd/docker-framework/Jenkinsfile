@@ -2,7 +2,7 @@
 
 node {
     //Clone example project from GitHub repository
-    git url: 'https://github.com/jfrogtraining/kubernetes_example.git', branch : 'master'
+    git url: 'https://github.com/jfrogtraining/kubernetes_example.git', branch : 'su-121-golang-cicd'
     def rtServer = Artifactory.server SERVER_ID
     def rtDocker = Artifactory.docker server: rtServer
     def buildInfo = Artifactory.newBuildInfo()
@@ -17,20 +17,15 @@ node {
                 def downloadSpec = """{
                          "files": [
                           {
-                           "pattern": "tomcat-local/java/jdk-8u91-linux-x64.tar.gz",
-                           "target": "jdk/jdk-8-linux-x64.tar.gz",
-                           "flat":"true"
-                          },
-                          {
-                           "pattern": "tomcat-local/org/apache/apache-tomcat/apache-tomcat-8.0.32.tar.gz",
-                           "target": "tomcat/apache-tomcat-8.tar.gz",
+                           "pattern": "thirdparty-generic-release-local/github.com/sanathp/statusok-linuxx86-1.1.1.tar.gz",
+                           "target": "statusok-linuxx86-1.1.1.tar.gz",
                            "flat":"true"
                           }
                           ]
                         }"""
 
                 rtServer.download (downloadSpec, buildInfo)
-                if (fileExists('jdk/jdk-8-linux-x64.tar.gz') && fileExists('tomcat/apache-tomcat-8.tar.gz')) {
+                if (fileExists('statusok-linuxx86-1.1.1.tar.gz') ) {
                     println "Downloaded dependencies"
                 } else {
                     println "Missing Dependencies either jdk or tomcat - see listing below:"
