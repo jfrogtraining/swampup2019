@@ -104,7 +104,7 @@ def reTagLatest (targetRepo) {
       }
       sh 'cat retaga_out.json'
       withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-          def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " " + SERVER_URL
+          def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " http://jfrog.local/artifactory" 
           def regTagStr = curlString +  "/api/docker/docker-stage-local/v2/promote -X POST -H 'Content-Type: application/json' -T retaga_out.json"
           println "Curl String is " + regTagStr
           sh regTagStr
