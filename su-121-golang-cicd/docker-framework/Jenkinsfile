@@ -131,7 +131,7 @@ def testFramework (tag) {
 
 def updateProperty (property) {
     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-            def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " " + "-X PUT " + SERVER_URL
+            def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " " + "-X PUT http://jfrog.local/artifactory"
             def updatePropStr = curlString +  "/api/storage/docker-stage-local/docker-framework/${env.BUILD_NUMBER}?properties=${property}"
             println "Curl String is " + updatePropStr
             sh updatePropStr
