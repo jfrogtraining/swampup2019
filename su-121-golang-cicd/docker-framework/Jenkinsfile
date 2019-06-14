@@ -11,7 +11,7 @@ node {
     buildInfo.env.capture = true
     //Fetch all depensencies from Artifactory
     stage('Dependencies') {
-        dir('docker-framework') {
+        dir('su-121-golang-cicd/docker-framework') {
             try {
                 println "Gather statusok module"
                 sh 'pwd'
@@ -43,7 +43,7 @@ node {
     }
     //Build docker image named "docker-framework" with Java 8 and Tomcat
     stage('Build') {
-        dir ('docker-framework') {
+        dir ('su-121-golang-cicd/docker-framework') {
                 sh 'pwd'
                 tagName = "${ARTDOCKER_REGISTRY}/docker-framework:${env.BUILD_NUMBER}"
                 println "Docker Framework Build"
@@ -57,7 +57,7 @@ node {
     }
     //Test docker image
     stage('Test') {
-        dir('docker-framework/framework-test') {
+        dir('su-121-golang-cicd/docker-framework/framework-test') {
 
             def gradleWarDownload = """{
             "files": [
@@ -86,25 +86,10 @@ node {
             }
         }
     }
-    //Scan build's Artifacts in Xray
-    stage('Xray Scan') {
-        if (XRAY_SCAN == "YES") {
-            def xrayConfig = [
-                'buildName'     : env.JOB_NAME,
-                'buildNumber'   : env.BUILD_NUMBER,
-                'failBuild'     : false
-            ]
-            def xrayResults = rtServer.xrayScan xrayConfig
-            echo xrayResults as String
-        } else {
-            println "No Xray scan performed. To enable set XRAY_SCAN = YES"
-        }
-        sleep 60
-    }
 
     //Promote image from local staging repositoy to production repository
     stage ('Promote') {
-        dir ('docker-framework') {
+        dir ('su-121-golang-cicd/docker-framework') {
             def promotionConfig = [
               'buildName'          : env.JOB_NAME,
               'buildNumber'        : env.BUILD_NUMBER,
