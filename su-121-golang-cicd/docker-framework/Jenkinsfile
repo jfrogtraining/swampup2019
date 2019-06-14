@@ -20,7 +20,8 @@ node {
                           {
                            "pattern": "thirdparty-generic-release-local/github.com/sanathp/statusok-linuxx86-1.1.1.tar.gz",
                            "target": "statusok-linuxx86-1.1.1.tar.gz",
-                           "flat":"true"
+                           "flat":"true",
+                           "explode": true
                           }
                           ]
                         }"""
