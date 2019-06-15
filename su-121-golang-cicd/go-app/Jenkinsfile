@@ -1,0 +1,31 @@
+#!/usr/bin/env groovy
+def ARTDOCKER_REGISTRY = "jfrog.local:5000"
+def REPO = "docker-virtual"
+def PROMOTE_REPO = "docker-prod-local"
+def SOURCE_REPO = "docker-stage-local"
+node {
+    stage ('Clone Source') {
+        dir('su-121-golang-cicd/go-app') {
+            git 'https://github.com/jfrogtraining/go-swampup-service'
+        }
+    }
+    stage ('Build source and Image') {
+        dir('su-121-golang-cicd/go-app') {
+            tagName = "${ARTDOCKER_REGISTRY}/go-app:${env.BUILD_NUMBER}"
+            println "Docker Framework Build"
+            docker.build(tagName)
+            println "Docker pushing -->" + tagName + " To docker-virtual" 
+            buildInfo = rtDocker.push(tagName, "docker-virtual", buildInfo)
+            println "Docker Buildinfo"
+            rtServer.publishBuildInfo buildInfo
+        }
+    }
+    stage ('Test') {
+        dir('su-121-golang-cicd/go-app') {
+        }
+    }
+    stage ('Promote') {
+        dir('su-121-golang-cicd/go-app') {
+        }
+    }
+}
