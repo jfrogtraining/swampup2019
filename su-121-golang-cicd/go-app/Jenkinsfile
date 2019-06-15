@@ -37,7 +37,7 @@ node {
     }
     stage ('Promote') {
         dir('su-121-golang-cicd/go-app') {
-            ef promotionConfig = [
+            def promotionConfig = [
               'buildName'          : env.JOB_NAME,
               'buildNumber'        : env.BUILD_NUMBER,
               'targetRepo'         : "docker-prod-local",
