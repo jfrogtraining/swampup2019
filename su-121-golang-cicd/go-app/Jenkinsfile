@@ -5,6 +5,11 @@ def PROMOTE_REPO = "docker-prod-local"
 def SOURCE_REPO = "docker-stage-local"
 node {
     git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'su-121-golang-cicd'
+    def rtServer = Artifactory.newServer url: "http://jfrog.local/artifactory", credentialsId: CREDENTIALS
+    def rtDocker = Artifactory.docker server: rtServer
+    def buildInfo = Artifactory.newBuildInfo()
+    def tagName
+    buildInfo.env.capture = true
     stage ('Clone Source') {
         dir('su-121-golang-cicd/go-app/src') {
             git 'https://github.com/jfrogtraining/go-swampup-service'
@@ -27,11 +32,49 @@ node {
     }
     stage ('Test') {
         dir('su-121-golang-cicd/go-app') {
+            //ToDo
         }
     }
     stage ('Promote') {
         dir('su-121-golang-cicd/go-app') {
+            ef promotionConfig = [
+              'buildName'          : env.JOB_NAME,
+              'buildNumber'        : env.BUILD_NUMBER,
+              'targetRepo'         : "docker-prod-local",
+              'comment'            : 'Go-App test with latest version of application',
+              'sourceRepo'         : "docker-stage-local",
+              'status'             : 'Released',
+              'includeDependencies': false,
+              'copy'               : true
+            ]
+            rtServer.promote promotionConfig
+            reTagLatest (SOURCE_REPO)
+            reTagLatest (PROMOTE_REPO)
         }
 
     }
+    def updateDockerFile () {
+    def BUILD_NUMBER = env.BUILD_NUMBER
+    sh "sed -i 's/docker.artifactory/${ARTDOCKER_REGISTRY}/' Dockerfile"
+    sh 'sed -i "s/go-app:latest/go-app:$BUILD_NUMBER/" Dockerfile'
+}
+
+def reTagLatest (targetRepo) {
+     def BUILD_NUMBER = env.BUILD_NUMBER
+     sh 'sed -E "s/@/$BUILD_NUMBER/" retag.json > retag_out.json'
+     switch (targetRepo) {
+          case "docker-prod-local" :
+              sh 'sed -E "s/TARGETREPO/docker-prod-local/" retag_out.json > retaga_out.json'
+              break
+          case "docker-stage-local" :
+               sh 'sed -E "s/TARGETREPO/docker-stage-local/" retag_out.json > retaga_out.json'
+               break
+      }
+      sh 'cat retaga_out.json'
+      withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+          def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " http://jfrog.local/artifactory" 
+          def regTagStr = curlString +  "/api/docker/docker-stage-local/v2/promote -X POST -H 'Content-Type: application/json' -T retaga_out.json"
+          println "Curl String is " + regTagStr
+          sh regTagStr
+      }
 }
