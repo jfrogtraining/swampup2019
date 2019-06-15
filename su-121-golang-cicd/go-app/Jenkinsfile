@@ -7,7 +7,7 @@ node {
     git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'su-121-golang-cicd'
     stage ('Clone Source') {
         dir('su-121-golang-cicd/go-app') {
-        //    git 'https://github.com/jfrogtraining/go-swampup-service'
+            git 'https://github.com/jfrogtraining/go-swampup-service'
             sh 'ls -al'
         }
         sh 'ls -al'
