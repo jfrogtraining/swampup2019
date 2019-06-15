@@ -2,7 +2,7 @@ FROM jfrog.local:5000/golang:1.12-alpine
 ENV GOPROXY=https://gocenter.io
 ENV GO111MODULE=on
 
-RUN go version
+RUN jfrog rt go-config --global
 RUN mkdir -p /go-swampup-service
 COPY src/main.go /go-swampup-service/
 WORKDIR /go-swampup-service
