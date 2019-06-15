@@ -31,6 +31,7 @@ node {
                 rtServer.download (downloadSpec, buildInfo)
                 if (fileExists('statusok') && fileExists("config.json")) {
                     sh 'chmod u+x statusok'
+                    sh 'sed -E "s/jfrog.local/localhost/" config.json > config.json
                     println "Downloaded dependencies"
                 } else {
                     println "Missing Dependencies either jdk or tomcat - see listing below:"
@@ -46,7 +47,6 @@ node {
     //Build docker image named "docker-framework" with Java 8 and Tomcat
     stage('Build') {
         dir ('su-121-golang-cicd/docker-framework') {
-                sh 'pwd'
                 tagName = "${ARTDOCKER_REGISTRY}/docker-framework:${env.BUILD_NUMBER}"
                 println "Docker Framework Build"
                 docker.build(tagName)
