@@ -1,0 +1,16 @@
+apiVersion: v1
+description: A Helm chart for Kubernetes
+name: docker-go-app-chart
+version: 0.1.1
+keywords:
+  - http
+  - node
+  - web
+  - npm
+home: https://github.com/jfrogtraining/swampup2019/
+sources:
+  - https://github.com/jfrogtraining/swampup2019/
+maintainers:
+  - name: ankushchdha
+    email: ankushc@jfrog.com
+icon: https://raw.githubusercontent.com/JFrogDev/artifactory-dcos/master/images/jfrog_med.png
