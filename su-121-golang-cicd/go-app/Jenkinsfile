@@ -8,6 +8,7 @@ node {
         //dir('su-121-golang-cicd/go-app/src') {
         //    git 'https://github.com/jfrogtraining/go-swampup-service'
         //}
+        sh 'ls -al'
     }
     stage ('Build source and Image') {
         dir('su-121-golang-cicd/go-app') {
