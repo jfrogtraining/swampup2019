@@ -2,7 +2,7 @@ FROM jfrog.local:5000/golang:1.12-alpine
 ENV GOPROXY=https://gocenter.io
 ENV GO111MODULE=on
 
-RUN cd go-swampup-service && go test ./...
+RUN git clone https://github.com/jfrogtraining/go-swampup-service && go test ./...
 
 FROM jfrog.local:5000/alpine
 

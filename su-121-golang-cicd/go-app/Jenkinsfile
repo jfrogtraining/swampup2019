@@ -5,9 +5,9 @@ def PROMOTE_REPO = "docker-prod-local"
 def SOURCE_REPO = "docker-stage-local"
 node {
     stage ('Clone Source') {
-        dir('su-121-golang-cicd/go-app/src') {
-            git 'https://github.com/jfrogtraining/go-swampup-service'
-        }
+        //dir('su-121-golang-cicd/go-app/src') {
+        //    git 'https://github.com/jfrogtraining/go-swampup-service'
+        //}
     }
     stage ('Build source and Image') {
         dir('su-121-golang-cicd/go-app') {
