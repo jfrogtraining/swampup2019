@@ -5,7 +5,7 @@ ENV GO111MODULE=on
 RUN mkdir /src
 COPY main.go /src
 RUN go env
-#RUN go mod init go-swampup-service
+RUN go mod init go-swampup-service
 RUN ls -al
 RUN cd /src && go build -v ./...
 
