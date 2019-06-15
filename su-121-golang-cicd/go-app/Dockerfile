@@ -8,7 +8,7 @@ COPY main.go /src/
 RUN go env
 #RUN go mod init go-swampup-service
 RUN ls -al
-RUN cd /src && go install
+RUN cd /src && go build .
 
 #FROM jfrog.local:5000/alpine
 
