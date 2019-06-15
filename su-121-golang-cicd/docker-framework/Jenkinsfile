@@ -31,7 +31,7 @@ node {
                 rtServer.download (downloadSpec, buildInfo)
                 if (fileExists('statusok') && fileExists("config.json")) {
                     sh 'chmod u+x statusok'
-                    sh 'sed -E "s/jfrog.local/localhost/" config.json > config.json
+                    sh 'sed -E "s/jfrog.local/localhost/" config.json > config.json'
                     println "Downloaded dependencies"
                 } else {
                     println "Missing Dependencies either jdk or tomcat - see listing below:"
