@@ -7,4 +7,7 @@ RUN mkdir -p /go-swampup-service
 COPY src/main.go /go-swampup-service/
 WORKDIR /go-swampup-service
 RUN go build -o go-swampup-service main.go
+FROM jfrog.local:5000/containerize-go-microservice:latest
+RUN mkdir -p /go-swampup-service
+COPY /go-swampup-service/go-swampup-service /go-swampup-service/
 CMD ["/go-swampup-service/go-swampup-service"]
