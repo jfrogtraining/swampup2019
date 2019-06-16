@@ -181,7 +181,7 @@ Upgrade artifactory in order to apply the nginx conf change <br />
 `
 <br />
 
-Create 300 concurrent HTTP connections using ApaceBanchemark:<br />
+Create 50 concurrent HTTP connections using ApaceBanchemark:<br />
 ` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact 
 `
 
