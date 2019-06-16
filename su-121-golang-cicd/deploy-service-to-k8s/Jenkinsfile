@@ -16,13 +16,13 @@ node {
         /* Configure helm client to point to k8s cluster */
          //sh './helm init'
          withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-           sh "helm repo add artifactory ${SERVER_URL}/helm --username ${env.USERNAME} --password ${env.PASSWORD}"
+           sh "helm repo add rt-helm-virtual ${SERVER_URL}/helm-virtual --username ${env.USERNAME} --password ${env.PASSWORD}"
            sh "helm repo update"
          }
     }
 
     stage('Deploy chart pulling from Artifactory') {
         /* Finally, we'll deploy the image to k8s using helm chart. */
-        sh "helm upgrade my-docker-go-app --install artifactory/docker-go-app-chart"
+        sh "helm upgrade my-docker-go-app --install rt-helm-virtual/docker-go-app-chart"
     }
 }
