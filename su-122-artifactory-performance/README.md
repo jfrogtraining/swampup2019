@@ -13,45 +13,13 @@
 swampup2019performance@gmail.com
 
 **password** <br />
-_in the class_
+zooloo123
+
 
 #
 
 
-# Lab 1- Update artifactory logging level 
-
-Create new NPM remote repository (WebUI -->Admin --> Remote --> New) and set the NPM remote URL to **"npmm.org"**  <br />
-(instead of **registry.npmjs.org** , the typo mistake is intentional) <br />
-
-Try to retrieve npm package using curl with the following command:   <br />
-**curl -iuadmin:password http://x.x.x.x/artifactory/api/npm/`npm_remote_name`/express/-/express-2.5.11.tgz**
-
-You should get a 404 response code <br />
-
-The logging level per appender can be modified in  **ARTIFACTORY_HOME/etc/logback.xml** <br />
-
-How we can connect to Artifactory ? we will execute into the artifactory pod  <br />
-
-By running -  **kubectl exec -ti artifactory-artifactory-0 -- /bin/bash** <br />
-
-
-Edit the logback.xml file on the Artifactory by Enable HTTPClient debug logging: <br />
-
-```
-	<logger name="org.apache.http.wire”> 
-        		<level value="debug"/>
-    			</logger>
-```
-		
-
-Server logging configuration to reload automatically  <br />
-
-Explore the logs for better understand the root issue 
-
-#
-
-
-# Lab 1 II - Update artifactory logging level - Access 
+# Lab 1  - Update artifactory logging level - Access 
 Send an authenticated request to Artifactory with bad credentials, i.e: <br />
 `url -uadmin:password http://x.x.x.x/artifactory/api/system/ping` <br />
 
