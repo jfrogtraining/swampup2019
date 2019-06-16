@@ -28,7 +28,7 @@ spec:
             failureThreshold: 3
             httpGet:
               path: /
-              port: 8181
+              port: 7888
               scheme: HTTP
             initialDelaySeconds: 30
             periodSeconds: 10
@@ -36,7 +36,7 @@ spec:
             timeoutSeconds: 30
           ports:
             - name: http
-              containerPort: 8181
+              containerPort: 7888
               protocol: TCP
       imagePullSecrets:
         {{- if .Values.image.secretName }}

@@ -54,7 +54,7 @@ The following tables lists the configurable parameters of the docker-go-app char
 | `image.tag`                        | Tag of docker image                 | `latest`                                                  |
 | `image.secretName`                 | Credentials of Art docker repo      | `regsecret`                                               |
 | `service.type`                     | Kubernetes Service type             | `LoadBalancer`                                            |
-| `service.port`                     | Port to expose                      | `8181`                                                    |
+| `service.port`                     | Port to expose                      | `7888`                                                    |
 | `imageCredentials.registry`        | Artifactory docker registry         | `docker.artifactory`                                      |
 | `imageCredentials.username`        | Artifactory username                | `admin`                                                   |
 | `imageCredentials.password`        | Artifactory password                | `password`                                                |
