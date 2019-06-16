@@ -90,13 +90,13 @@ artifactory:
 ```
 
 Upgrade artifactory helm chart with the SERVER_XML_ARTIFACTORY_MAX_THREADS new value <br />
-`helm upgrade artifactory jfrog/artifactory  --version 7.13.9  -f artifactory.yaml`
+`helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml`
  <br />
  
  
 
 Check the new values under /opt/jfrog/artifactory/tomcat/conf/server.xml  <br />
-`helm upgrade artifactory jfrog/artifactory  --version 7.13.9  -f artifactory.yaml`
+`helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml`
  <br />
  
 Create 50 concurrent HTTP connections using ApaceBanchemark - see the latency in the response:<br />
@@ -125,7 +125,7 @@ Total:          1   14 178.4      2   14437
 
 
 Change SERVER_XML_ARTIFACTORY_MAX_THREADS value back to 200 , remove the SERVER_XML_ARTIFACTORY_EXTRA_CONFIG key and run the following <br />
-`helm upgrade artifactory jfrog/artifactory  --version 7.13.9  -f artifactory.yaml` <br />
+`helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml` <br />
 
 
 **Take 2 - change nginx** <br />
@@ -211,7 +211,7 @@ Create a configMap <br />
 
 
 Upgrade artifactory in order to apply the nginx conf change <br />
-`helm upgrade artifactory jfrog/artifactory --version 7.13.9 --set nginx.customConfigMap=nginx-conf
+`helm upgrade artifactory jfrog/artifactory --version 7.14.3 --set nginx.customConfigMap=nginx-conf
 `
 <br />
 
@@ -223,7 +223,7 @@ Delete the config map <br />
 `kubectl delete configmap nginx-conf ` <br />
 
 Upgrade artifactory in order to revert changes <br />
-`helm upgrade artifactory jfrog/artifactory  --version 7.13.9 `
+`helm upgrade artifactory jfrog/artifactory  --version 7.14.3 `
 <br />
 
 
@@ -232,7 +232,7 @@ Upgrade artifactory in order to revert changes <br />
 # Lab 4 - Database connections Exceeded
 
 Upgrade Postgres connection details :<br />
-`helm upgrade artifactory jfrog/artifactory --version 7.13.9 --set postgresql.postgresConfig.max_connections=2 --set postgresql.postgresConfig.superuser_reserved_connections=1
+`helm upgrade artifactory jfrog/artifactory --version 7.14.3 --set postgresql.postgresConfig.max_connections=2 --set postgresql.postgresConfig.superuser_reserved_connections=1
 `
 
 Can we resolve this issue by adjusting Artifactory configuration only? <br />
@@ -240,7 +240,7 @@ see - https://jfrog.com/knowledge-base/how-do-i-tune-artifactory-for-heavy-loads
 
 
 Revert changes <br />
-`helm upgrade artifactory jfrog/artifactory --version 7.13.9 --set postgresql.postgresConfig.max_connections=2 --set postgresql.postgresConfig.superuser_reserved_connections=100
+`helm upgrade artifactory jfrog/artifactory --version 7.14.3 --set postgresql.postgresConfig.max_connections=2 --set postgresql.postgresConfig.superuser_reserved_connections=100
 `
 #
 
@@ -322,12 +322,12 @@ explore the relevant artifactory User plugins - https://github.com/jfrog/artifac
 # Lab 5 - JVM Memory Issues
 
 Change Xms and Xmx JVM Heap size:<br />
-`helm upgrade artifactory  jfrog/artifactory --version 7.13.9 --set artifactory.javaOpts.xms="512m"  --set artifactory.javaOpts.xmx="1g" ` <br />
+`helm upgrade artifactory  jfrog/artifactory --version 7.14.3 --set artifactory.javaOpts.xms="512m"  --set artifactory.javaOpts.xmx="1g" ` <br />
 <br />
 explore - https://www.jfrog.com/confluence/display/RTF/Artifactory+JMX+MBeans 
 
 Restore change ? can u think what are the base practices sizing the VM<br />
-`helm upgrade artifactory  jfrog/artifactory --version 7.13.9 --set artifactory.javaOpts.xms="xxx"  --set artifactory.javaOpts.xmx="yyy" ` <br />
+`helm upgrade artifactory  jfrog/artifactory --version 7.14.3 --set artifactory.javaOpts.xms="xxx"  --set artifactory.javaOpts.xmx="yyy" ` <br />
 
 
  
