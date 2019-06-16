@@ -213,20 +213,6 @@ Revert changes <br />
 #
 
 
-# Lab 5 - JVM Memory Issues
-
-Change Xms and Xmx JVM Heap size:<br />
-`helm upgrade artifactory  jfrog/artifactory --version 7.13.9 --set artifactory.javaOpts.xms="512m"  --set artifactory.javaOpts.xmx="1g" ` <br />
-<br />
-explore - https://www.jfrog.com/confluence/display/RTF/Artifactory+JMX+MBeans 
-
-Restore change ? can u think what are the base practices sizing the VM<br />
-`helm upgrade artifactory  jfrog/artifactory --version 7.13.9 --set artifactory.javaOpts.xms="xxx"  --set artifactory.javaOpts.xmx="yyy" ` <br />
-
-
-
-#
-
 # Lab 2 , Phase II -  Help , I’ve got 1GB disk space left !
 
 Delete artifact (REST API) :<br />
@@ -298,4 +284,18 @@ jfrog rt del --spec delete-large-artifacts.spec --dry-run
 If you still got time: <br />
 
 explore the relevant artifactory User plugins - https://github.com/jfrog/artifactory-user-plugins/tree/master/cleanup
+
+#
+
+# Lab 5 - JVM Memory Issues
+
+Change Xms and Xmx JVM Heap size:<br />
+`helm upgrade artifactory  jfrog/artifactory --version 7.13.9 --set artifactory.javaOpts.xms="512m"  --set artifactory.javaOpts.xmx="1g" ` <br />
+<br />
+explore - https://www.jfrog.com/confluence/display/RTF/Artifactory+JMX+MBeans 
+
+Restore change ? can u think what are the base practices sizing the VM<br />
+`helm upgrade artifactory  jfrog/artifactory --version 7.13.9 --set artifactory.javaOpts.xms="xxx"  --set artifactory.javaOpts.xmx="yyy" ` <br />
+
+
  
