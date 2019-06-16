@@ -1,1 +1,0 @@
-# swampup-go-service

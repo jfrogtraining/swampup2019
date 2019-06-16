@@ -1,6 +1,6 @@
 {
     "name": "MySwampupProduct",
-    "version": "1.0",
+    "version": "1.1",
     "dry_run": false,
     "sign_immediately": true,
     "store_at_source_artifactory": true,
@@ -10,15 +10,27 @@
       "content": "First release for test"
     },
     "spec": {
-      "source_artifactory_id": "jfrt@...",
+      "source_artifactory_id": "jfrt@01cbtf9px77xe102xdshjy16cx",
       "queries": [
         {
           "aql": "items.find({ \"repo\" : \"docker-prod-local\", \"artifact.module.build.name\" : \"su-115-step3-docker-app\",\"path\" : {\"$match\":\"*5*\" }})",
-          "query_name": "docker-app"
+          "query_name": "docker-app",
+          "mappings": [
+            {
+              "input": "docker-prod-local/(.*)",
+              "output": "docker-local/$1"
+            }
+          ]
         },
         {
-          "aql": "items.find({ \"repo\" : \"helm-local\", \"artifact.module.build.name\" : \"su-115-step4-helm-chart\",\"artifact.module.build.number\":\"6\" })",
-          "query_name": "helm-chart"
+          "aql": "items.find({ \"repo\" : \"helm-prod-local\", \"artifact.module.build.name\" : \"su-115-step4-helm-chart\",\"artifact.module.build.number\":\"6\" })",
+          "query_name": "helm-chart",
+          "mappings": [
+            {
+              "input": "helm-prod-local/(.*)",
+              "output": "helm-local/$1"
+            }
+          ]
         }
       ]
     }
