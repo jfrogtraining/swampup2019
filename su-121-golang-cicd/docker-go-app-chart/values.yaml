@@ -6,7 +6,7 @@ replicaCount: 1
 restartPolicy: Never
 
 image:
-  repository: docker.artifactory/docker-go-app
+  repository: jfrog.local:5000/docker-go-app
   tag: latest
   secretName: regsecret
   pullPolicy: Always
