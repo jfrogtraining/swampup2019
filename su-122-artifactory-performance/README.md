@@ -64,6 +64,11 @@ Number of artifacts -  **35** <br />
 # Lab 3 - High HTTP(S) Requests
 
 **Take 1 - change artifactory Tomcat** <br />
+
+Create 50 concurrent HTTP connections using ApaceBanchemark - as base line<br />
+` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact 
+`
+
 create artifactory.yaml file with this values <br />
 
 ```
@@ -86,9 +91,15 @@ Upgrade artifactory helm chart with the SERVER_XML_ARTIFACTORY_MAX_THREADS new v
 `helm upgrade artifactory jfrog/artifactory  --version 7.13.9  -f artifactory.yaml`
  <br />
  
-Create 50 concurrent HTTP connections using ApaceBanchemark:<br />
+ 
+
+Check the new values under /opt/jfrog/artifactory/tomcat/conf/server.xml  <br />
+`helm upgrade artifactory jfrog/artifactory  --version 7.13.9  -f artifactory.yaml`
+ <br />
+ 
+Create 50 concurrent HTTP connections using ApaceBanchemark - see the latency in the response:<br />
 ` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact 
-`
+
 
 Change SERVER_XML_ARTIFACTORY_MAX_THREADS value back to 200 , remove the SERVER_XML_ARTIFACTORY_EXTRA_CONFIG key and run the following <br />
 `helm upgrade artifactory jfrog/artifactory  --version 7.13.9  -f artifactory.yaml` <br />
