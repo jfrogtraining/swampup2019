@@ -16,8 +16,8 @@ node {
         /* Configure helm client to point to k8s cluster */
          //sh './helm init'
          withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-           sh "helm repo add rt-helm-virtual ${SERVER_URL}/helm-virtual --username ${env.USERNAME} --password ${env.PASSWORD}"
-           sh "helm repo update"
+           sh "sudo helm repo add rt-helm-virtual ${SERVER_URL}/helm-virtual --username ${env.USERNAME} --password ${env.PASSWORD}"
+           sh "sudo helm repo update"
          }
     }
 
