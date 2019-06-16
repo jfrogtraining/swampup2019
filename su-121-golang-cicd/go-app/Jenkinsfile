@@ -25,12 +25,22 @@ node {
     stage ('Build source and Image') {
         dir('su-121-golang-cicd/go-app') {
             tagName = "${ARTDOCKER_REGISTRY}/docker-go-app:${env.BUILD_NUMBER}"
-            println "Docker Framework Build"
-            docker.build(tagName)
-            println "Docker pushing -->" + tagName + " To docker-virtual"
-            buildInfo = rtDocker.push(tagName, "docker-virtual", buildInfo)
-            println "Docker Buildinfo"
-            rtServer.publishBuildInfo buildInfo
+
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " -XPOST \"http://jfrog.local/artifactory/api/security/token\" -d \"username=env.USERNAME\" -d \"scope=member-of-groups:writers\" -d \"expires_in=600\""
+
+                def ret = sh(script: curlString, returnStdout: true)
+
+                def ARTIFACTORY_ACCESS_TOKEN = sh(script: "echo '${ret}' | jq -r .access_token", returnStdout: true )
+
+
+                docker.build(tagName, ". --build-arg ARTIFACTORY_URL=http://104.155.164.79/artifactory/ --build-arg ARTIFACTORY_USER=jenkins --build-arg BUILD_NUMBER=${env.BUILD_NUMBER} --build-arg BUILD_NAME=go-docker-build --build-arg ARTIFACTORY_ACCESS_TOKEN=$ARTIFACTORY_ACCESS_TOKEN .")
+                println "Docker pushing -->" + tagName + " To docker-virtual"
+                buildInfo = rtDocker.push(tagName, "docker-virtual", buildInfo)
+                println "Docker Buildinfo"
+                rtServer.publishBuildInfo buildInfo
+            }
+
         }
     }
 
