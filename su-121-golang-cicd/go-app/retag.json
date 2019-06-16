@@ -1,6 +1,6 @@
 {
     "targetRepo" : "TARGETREPO",
-    "dockerRepository" : "containerize-go-microservice",
+    "dockerRepository" : "docker-go-app",
     "tag" : "@",
     "targetTag" : "latest",
     "copy": true
