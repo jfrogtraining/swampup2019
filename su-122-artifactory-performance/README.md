@@ -90,7 +90,7 @@ Create 50 concurrent HTTP connections using ApaceBanchemark:<br />
 ` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact 
 `
 
-Change SERVER_XML_ARTIFACTORY_MAX_THREADS value back to 200 and reset config by running <br />
+Change SERVER_XML_ARTIFACTORY_MAX_THREADS value back to 200 , remove the SERVER_XML_ARTIFACTORY_EXTRA_CONFIG key and run the following <br />
 `helm upgrade artifactory jfrog/artifactory  --version 7.13.9  -f artifactory.yaml` <br />
 
 
