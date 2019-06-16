@@ -75,8 +75,6 @@ artifactory:
   ## Extra environment variables that can be used to tune Artifactory to your needs.
   ## Uncomment and set value as needed
   extraEnvironmentVariables:
-  # - name: SERVER_XML_ARTIFACTORY_PORT
-  #   value: "8081"
    - name: SERVER_XML_ARTIFACTORY_MAX_THREADS
      value: "5"
    - name: SERVER_XML_ARTIFACTORY_EXTRA_CONFIG
