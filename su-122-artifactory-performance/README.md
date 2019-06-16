@@ -239,7 +239,7 @@ helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
 ```
 
 Can we resolve this issue by adjusting Artifactory configuration only? <br />
-see - https://jfrog.com/knowledge-base/how-do-i-tune-artifactory-for-heavy-loads/  
+see - https://jfrog.com/blog/monitoring-and-optimizing-artifactory-performance/
 
 
 Revert changes <br />
