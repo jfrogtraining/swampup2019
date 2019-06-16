@@ -103,6 +103,27 @@ Create 50 concurrent HTTP connections using ApaceBanchemark - see the latency in
 ` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact 
 
 
+
+```
+connection Times before (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.7      0      10
+Processing:     1   20  16.2     16     215
+Waiting:        1   20  15.7     15     196
+Total:          1   21  16.2     16     215
+
+```
+
+ ```
+ Connection Times after (ms)
+              min  mean[+/-sd] median   max
+Connect:        0   11 147.2      0    7122
+Processing:     1    3  86.8      2   13376
+Waiting:        0    3  86.8      1   13376
+Total:          1   14 178.4      2   14437
+``` 
+
+
 Change SERVER_XML_ARTIFACTORY_MAX_THREADS value back to 200 , remove the SERVER_XML_ARTIFACTORY_EXTRA_CONFIG key and run the following <br />
 `helm upgrade artifactory jfrog/artifactory  --version 7.13.9  -f artifactory.yaml` <br />
 
