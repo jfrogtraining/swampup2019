@@ -1,0 +1,6 @@
+{
+ "rclass" : "local",
+ "packageType": "docker",
+ "description": "The local docker repository for my2proj",
+ "dockerApiVersion" : "V2"
+}
