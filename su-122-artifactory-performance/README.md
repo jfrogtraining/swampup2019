@@ -97,7 +97,7 @@ Change SERVER_XML_ARTIFACTORY_MAX_THREADS value back to 200 , remove the SERVER_
 **Take 2 - change nginx** <br />
 
 
-Create a **ngnix.conf** file based on the following setup  <br />
+Create a **nginx.conf** file based on the following setup  <br />
 
 ```
 # Main Nginx configuration file
@@ -177,7 +177,7 @@ Create a configMap <br />
 
 
 Upgrade artifactory in order to apply the nginx conf change <br />
-`helm upgrade artifactory  --version 7.13.9 --set nginx.customConfigMap=nginx-conf
+`helm upgrade artifactory jfrog/artifactory --version 7.13.9 --set nginx.customConfigMap=nginx-conf
 `
 <br />
 
