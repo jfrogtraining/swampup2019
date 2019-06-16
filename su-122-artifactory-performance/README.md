@@ -232,16 +232,22 @@ Upgrade artifactory in order to revert changes <br />
 # Lab 4 - Database connections Exceeded
 
 Upgrade Postgres connection details :<br />
-`helm upgrade artifactory jfrog/artifactory --version 7.14.3 --set postgresql.postgresConfig.max_connections=2 --set postgresql.postgresConfig.superuser_reserved_connections=1
-`
+```
+helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
+--set postgresql.postgresConfig.max_connections=2 \
+--set postgresql.postgresConfig.superuser_reserved_connections=1
+```
 
 Can we resolve this issue by adjusting Artifactory configuration only? <br />
 see - https://jfrog.com/knowledge-base/how-do-i-tune-artifactory-for-heavy-loads/  
 
 
 Revert changes <br />
-`helm upgrade artifactory jfrog/artifactory --version 7.14.3 --set postgresql.postgresConfig.max_connections=2 --set postgresql.postgresConfig.superuser_reserved_connections=100
-`
+```
+helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
+--set postgresql.postgresConfig.max_connections=2 \
+--set postgresql.postgresConfig.superuser_reserved_connections=100
+```
 #
 
 
