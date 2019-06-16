@@ -5,39 +5,29 @@ node {
         git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'su-121-golang-cicd'
     }
 
-    stage('Install helm & JFrog CLI') {
-         // This installs helm client
-        //sh "helm version"
+    stage('Install JFrog CLI') {
 
         dir("su-121-golang-cicd"){
 
-        //sh "curl -O https://storage.googleapis.com/kubernetes-helm/helm-v2.14.0-linux-amd64.tar.gz"
-        //sh "tar -xvf helm-v2.14.0-linux-amd64.tar.gz"
-        //sh "chmod 777 helm"
-        //sh "./helm version -c"
-        // This installs and configure JFrog Cli
-        sh "curl -fL https://getcli.jfrog.io | sh"
-        sh "echo hello1"
-        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-        sh "./jfrog rt config --url ${SERVER_URL} --user ${env.USERNAME} --password ${env.PASSWORD}"
-        }
+          // This installs and configure JFrog Cli
+          sh "curl -fL https://getcli.jfrog.io | sh"
+
+          withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+            sh "./jfrog rt config --url ${SERVER_URL} --user ${env.USERNAME} --password ${env.PASSWORD}"
+          }
         }
     }
 
     stage('Build Chart & push it to Artifactory repo') {
         /* Configure helm client to point to k8s cluster */
         dir("su-121-golang-cicd"){
-        println "start helm init"
-         //sh "helm init"
-         //println "finished helm init"
-         sh "ls -al"
-         sh "sed -i 's/0.1.1/0.1.${env.BUILD_NUMBER}/' docker-go-app-chart/Chart.yaml"
-         //sh "sed -i 's/latest/${IMAGE_TAG}/g' docker-go-app-chart/values.yaml"
-         sh "helm package ./docker-go-app-chart/"
-         sh "./jfrog rt u '*.tgz' ${REPO} --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER}"
-         sh "./jfrog rt bce ${env.JOB_NAME} ${env.BUILD_NUMBER}"
-         // sh "./jfrog rt dl docker-prod-local/docker-go-app/${IMAGE_TAG}/manifest.json --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER} "
-         sh "./jfrog rt bp ${env.JOB_NAME} ${env.BUILD_NUMBER}"
+           sh "sed -i 's/0.1.1/0.1.${env.BUILD_NUMBER}/' docker-go-app-chart/Chart.yaml"
+           //sh "sed -i 's/latest/${IMAGE_TAG}/g' docker-go-app-chart/values.yaml"
+           sh "helm package ./docker-go-app-chart/"
+           sh "./jfrog rt u '*.tgz' ${REPO} --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER}"
+           sh "./jfrog rt bce ${env.JOB_NAME} ${env.BUILD_NUMBER}"
+           // sh "./jfrog rt dl docker-prod-local/docker-go-app/${IMAGE_TAG}/manifest.json --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER} "
+           sh "./jfrog rt bp ${env.JOB_NAME} ${env.BUILD_NUMBER}"
         }
     }
 }

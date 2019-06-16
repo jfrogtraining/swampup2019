@@ -12,7 +12,8 @@ node {
     def tagName
     buildInfo.env.capture = true
 
-    stage('Clone'){
+    stage('Cleanup & Clone'){
+      cleanWs()
       git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'su-121-golang-cicd'
     }
 

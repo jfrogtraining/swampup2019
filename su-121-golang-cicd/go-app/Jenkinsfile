@@ -3,38 +3,43 @@ def ARTDOCKER_REGISTRY = "jfrog.local:5000"
 def REPO = "docker-virtual"
 def PROMOTE_REPO = "docker-prod-local"
 def SOURCE_REPO = "docker-stage-local"
+
 node {
-    git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'su-121-golang-cicd'
+
     def rtServer = Artifactory.newServer url: "http://jfrog.local/artifactory", credentialsId: CREDENTIALS
     def rtDocker = Artifactory.docker server: rtServer
     def buildInfo = Artifactory.newBuildInfo()
     def tagName
     buildInfo.env.capture = true
-    stage ('Clone Source') {
+
+    stage ('Clone') {
+        cleanWs()
+
+        git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'su-121-golang-cicd'
+
         dir('su-121-golang-cicd/go-app/src') {
             git 'https://github.com/jfrogtraining/go-swampup-service'
-            sh 'ls -al'
-            sh 'pwd'
         }
-        sh 'ls -al'
-        sh 'pwd'
     }
+
     stage ('Build source and Image') {
         dir('su-121-golang-cicd/go-app') {
-            tagName = "${ARTDOCKER_REGISTRY}/go-app:${env.BUILD_NUMBER}"
+            tagName = "${ARTDOCKER_REGISTRY}/docker-go-app:${env.BUILD_NUMBER}"
             println "Docker Framework Build"
             docker.build(tagName)
-            println "Docker pushing -->" + tagName + " To docker-virtual" 
+            println "Docker pushing -->" + tagName + " To docker-virtual"
             buildInfo = rtDocker.push(tagName, "docker-virtual", buildInfo)
             println "Docker Buildinfo"
             rtServer.publishBuildInfo buildInfo
         }
     }
+
     stage ('Test') {
         dir('su-121-golang-cicd/go-app') {
             //ToDo
         }
     }
+
     stage ('Promote') {
         dir('su-121-golang-cicd/go-app') {
             def promotionConfig = [
@@ -74,7 +79,7 @@ def reTagLatest (targetRepo) {
       }
       sh 'cat retaga_out.json'
       withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-          def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " http://jfrog.local/artifactory" 
+          def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " http://jfrog.local/artifactory"
           def regTagStr = curlString +  "/api/docker/docker-stage-local/v2/promote -X POST -H 'Content-Type: application/json' -T retaga_out.json"
           println "Curl String is " + regTagStr
           sh regTagStr

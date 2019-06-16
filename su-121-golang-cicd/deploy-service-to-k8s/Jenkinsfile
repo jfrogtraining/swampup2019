@@ -2,19 +2,8 @@
 def SERVER_URL = "http://jfrog.local/artifactory"
 
 node {
-
-    stage('Install helm') {
-        /* This installs helm client */
-        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-          sh "curl -u ${env.USERNAME}:${env.PASSWORD} -O ${SERVER_URL}/generic-local/helm"
-          //sh "chmod 777 ./helm"
-        }
-
-    }
-
     stage('Configure helm & add Artifactory repo') {
         /* Configure helm client to point to k8s cluster */
-         //sh './helm init'
          withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
            sh "sudo helm repo add rt-helm-virtual ${SERVER_URL}/helm-virtual --username ${env.USERNAME} --password ${env.PASSWORD}"
            sh "sudo helm repo update"
