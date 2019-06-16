@@ -65,6 +65,8 @@ Number of artifacts -  **35** <br />
 
 **Take 1 - change artifactory Tomcat** <br />
 
+Make sure Tomcat is queried *directly* and not Nginx (on the first a/b test). On the second, the user should query nginx, and not tomcat
+
 Create 50 concurrent HTTP connections using ApaceBanchemark - as base line<br />
 ` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact 
 `
@@ -197,10 +199,10 @@ Create 50 concurrent HTTP connections using ApaceBanchemark:<br />
 `
 
 Delete the config map <br />
-`kubectl delete configmap nginx.conf ` <br />
+`kubectl delete configmap nginx-conf ` <br />
 
 Upgrade artifactory in order to revert changes <br />
-`helm upgrade artifactory  --version 7.13.9 `
+`helm upgrade artifactory jfrog/artifactory  --version 7.13.9 `
 <br />
 
 
