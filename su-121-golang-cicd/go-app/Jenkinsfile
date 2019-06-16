@@ -33,8 +33,8 @@ node {
 
                 def ARTIFACTORY_ACCESS_TOKEN = sh(script: "echo '${ret}' | jq -r .access_token", returnStdout: true )
 
-
-                docker.build(tagName, ". --build-arg ARTIFACTORY_URL=http://104.155.164.79/artifactory/ --build-arg ARTIFACTORY_USER=jenkins --build-arg BUILD_NUMBER=${env.BUILD_NUMBER} --build-arg BUILD_NAME=go-docker-build --build-arg ARTIFACTORY_ACCESS_TOKEN=$ARTIFACTORY_ACCESS_TOKEN .")
+                def IP = sh(script: 'curl ifconfig.me', returnStdout: true )
+                docker.build(tagName, ". --build-arg ARTIFACTORY_URL=http://$IP/artifactory/ --build-arg ARTIFACTORY_USER=jenkins --build-arg BUILD_NUMBER=${env.BUILD_NUMBER} --build-arg BUILD_NAME=go-docker-build --build-arg ARTIFACTORY_ACCESS_TOKEN=$ARTIFACTORY_ACCESS_TOKEN .")
                 println "Docker pushing -->" + tagName + " To docker-virtual"
                 buildInfo = rtDocker.push(tagName, "docker-virtual", buildInfo)
                 println "Docker Buildinfo"
