@@ -9,11 +9,11 @@ RUN curl -Lo /usr/bin/jfrog https://api.bintray.com/content/jfrog/jfrog-cli-go/\
    && chmod a+x /usr/bin/jfrog
 
 
-RUN mkdir -p /jfrogsolutionci/statusok
+RUN mkdir -p /tools/statusok
 
 
-WORKDIR /jfrogsolutionci/statusok
-COPY ./statusok  /jfrogsolutionci/statusok/statusok
-COPY ./config.json /jfrogsolutionci/statusok/config.json
+WORKDIR /tools/statusok
+COPY ./statusok  /tools/statusok/statusok
+COPY ./config.json /tools/statusok/config.json
 
-CMD ["/jfrogsolutionci/statusok/statusok"]
+CMD ["/tools/statusok/statusok"]

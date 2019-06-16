@@ -3,15 +3,20 @@ def ARTDOCKER_REGISTRY = "jfrog.local:5000"
 def REPO = "docker-virtual"
 def PROMOTE_REPO = "docker-prod-local"
 def SOURCE_REPO = "docker-stage-local"
+
 node {
-    //Clone example project from GitHub repository
-    git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'su-121-golang-cicd'
+
     def rtServer = Artifactory.newServer url: "http://jfrog.local/artifactory", credentialsId: CREDENTIALS
     def rtDocker = Artifactory.docker server: rtServer
     def buildInfo = Artifactory.newBuildInfo()
     def tagName
     buildInfo.env.capture = true
-    //Fetch all depensencies from Artifactory
+
+    stage('Clone'){
+      git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'su-121-golang-cicd'
+    }
+
+    //Fetch all dependencies from Artifactory
     stage('Dependencies') {
         dir('su-121-golang-cicd/docker-framework') {
             try {
@@ -47,10 +52,10 @@ node {
     //Build docker image named "docker-framework" with Java 8 and Tomcat
     stage('Build') {
         dir ('su-121-golang-cicd/docker-framework') {
-                tagName = "${ARTDOCKER_REGISTRY}/docker-framework:${env.BUILD_NUMBER}"
+                tagName = "${ARTDOCKER_REGISTRY}/docker-go-framework:${env.BUILD_NUMBER}"
                 println "Docker Framework Build"
                 docker.build(tagName)
-                println "Docker pushing -->" + tagName + " To docker-virtual" 
+                println "Docker pushing -->" + tagName + " To docker-virtual"
                 buildInfo = rtDocker.push(tagName, "docker-virtual", buildInfo)
                 println "Docker Buildinfo"
                 rtServer.publishBuildInfo buildInfo
@@ -65,7 +70,7 @@ node {
         }
     }
 
-    //Promote image from local staging repositoy to production repository
+    //Promote image from local staging repository to production repository
     stage ('Promote') {
         dir ('su-121-golang-cicd/docker-framework') {
             def promotionConfig = [
@@ -85,11 +90,6 @@ node {
     }
 }
 
-def updateDockerFile () {
-    def BUILD_NUMBER = env.BUILD_NUMBER
-    sh "sed -i 's/docker.artifactory/${ARTDOCKER_REGISTRY}/' Dockerfile"
-    sh 'sed -i "s/docker-framework:latest/docker-framework:$BUILD_NUMBER/" Dockerfile'
-}
 
 def reTagLatest (targetRepo) {
      def BUILD_NUMBER = env.BUILD_NUMBER
@@ -104,35 +104,18 @@ def reTagLatest (targetRepo) {
       }
       sh 'cat retaga_out.json'
       withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-          def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " http://jfrog.local/artifactory" 
+          def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " http://jfrog.local/artifactory"
           def regTagStr = curlString +  "/api/docker/docker-stage-local/v2/promote -X POST -H 'Content-Type: application/json' -T retaga_out.json"
           println "Curl String is " + regTagStr
           sh regTagStr
       }
 }
 
-// Following test will work only if you have jenkins running outside kubernetes.
-//test docker image by runnning container
-def testFramework (tag) {
-    def result = true
-    docker.image(tag).withRun('-p 8181:8181') {c ->
-        sleep 10
-        //def stdout = sh(script: 'curl "http://localhost:8181/swampup/"', returnStdout: true)
-        //if (stdout.contains("Welcome Docker Lifecycle Training")) {
-            // println "*** Passed Test: " + stdout
-        //} else {
-         //   println "*** Failed Test: " + stdout
-        //    result = false
-        //}
-    }
-    sh "docker rmi ${tag}"
-    return true
-}
 
 def updateProperty (property) {
     withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
             def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " " + "-X PUT http://jfrog.local/artifactory"
-            def updatePropStr = curlString +  "/api/storage/docker-stage-local/docker-framework/${env.BUILD_NUMBER}?properties=${property}"
+            def updatePropStr = curlString +  "/api/storage/docker-stage-local/docker-go-framework/${env.BUILD_NUMBER}?properties=${property}"
             println "Curl String is " + updatePropStr
             sh updatePropStr
      }
