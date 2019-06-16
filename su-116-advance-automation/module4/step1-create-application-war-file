@@ -41,9 +41,6 @@ step1-create1-application () {
    # publish the accumulated build information for a build to Artifactory
    jfrog <TBD> ${build_name} ${build_no} --server-id ${SERVER_ID}
 
-   # Scan for vulnerabilities after you configure XRAY to watch your job 
-   # jfrog <TBD> ${build_name} ${build_no}
-
    echo "Successfully build application"
    cd ${rootDir}
 

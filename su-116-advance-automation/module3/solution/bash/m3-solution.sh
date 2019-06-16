@@ -68,7 +68,6 @@ getEUUserSecurity () {
   local response=($(curl -s -u"${REMOTE_USER}":"${REMOTE_PASSWORD}" -X GET -H 'Content-Type: application/json' "${REMOTE_ARTIFACTORY}"/api/security/apiKey))
   REMOTE_ART_APIKEY=$(echo ${response[@]} | jq '.apiKey' | sed 's/"//g')
   echo "User api key: ${REMOTE_USER}:${REMOTE_ART_APIKEY} and access token: ${REMOTE_ACCESS_TOKEN}"
-
 }
 
 createRepo () {
