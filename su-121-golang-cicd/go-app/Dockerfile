@@ -12,7 +12,6 @@ RUN apk update && apk add --update git curl bash
 RUN curl -Lo /usr/bin/jfrog https://api.bintray.com/content/jfrog/jfrog-cli-go/\$latest/jfrog-cli-linux-386/jfrog?bt_package=jfrog-cli-linux-386 \
 	&& chmod a+x /usr/bin/jfrog \
 	&& mkdir -p /go-swampup-service
-RUN echo $ARTIFACTORY_ACCESS_TOKEN
 
 RUN jfrog rt c swampup --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS_TOKEN --interactive=false
 
