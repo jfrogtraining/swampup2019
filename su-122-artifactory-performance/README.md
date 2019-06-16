@@ -79,8 +79,8 @@ artifactory:
   #   value: "8081"
    - name: SERVER_XML_ARTIFACTORY_MAX_THREADS
      value: "5"
-  # - name: SERVER_XML_ACCESS_MAX_THREADS
-  #   value: "50"
+   - name: SERVER_XML_ARTIFACTORY_EXTRA_CONFIG
+     value: 'maxConnections="2" acceptCount="1"'
 
 ```
 
