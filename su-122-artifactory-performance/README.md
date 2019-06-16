@@ -86,7 +86,7 @@ Upgrade artifactory helm chart with the SERVER_XML_ARTIFACTORY_MAX_THREADS new v
 `helm upgrade artifactory jfrog/artifactory  --version 7.13.9  -f artifactory.yaml`
  <br />
  
-Create 300 concurrent HTTP connections using ApaceBanchemark:<br />
+Create 50 concurrent HTTP connections using ApaceBanchemark:<br />
 ` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact 
 `
 
