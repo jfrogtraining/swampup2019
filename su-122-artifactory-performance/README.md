@@ -55,7 +55,7 @@ Artifactory URL need to be : <br />
 http://xxx.xxx.xxx.xxx/artifactory <br />
 Enter the parameters and click “Build”  <br />
 Package min size (bytes) -  **35000000** <br />
-Package max size (bytes)  -  **5000000** <br />
+Package max size (bytes)  - **50000000** <br />
 Number of artifacts -  **35** <br />
 
 **Leave this job running**  <br />
