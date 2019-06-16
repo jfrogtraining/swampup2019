@@ -18,12 +18,12 @@ RUN jfrog rt c swampup --url=$ARTIFACTORY_URL --access-token=$ARTIFACTORY_ACCESS
 COPY src/main.go /go-swampup-service/
 COPY src/go.mod /go-swampup-service/
 WORKDIR /go-swampup-service
-
 COPY go.yaml .jfrog/projects/
 
 
 RUN jfrog rt go build . --build-name=$BUILD_NAME --build-number=$BUILD_NUMBER
 RUN jfrog rt gp go-virtual v1.2.$BUILD_NUMBER --build-name=$BUILD_NAME --build-number=$BUILD_NUMBER --server-id=swampup
+RUN jfrog rt bce $BUILD_NAME v1.2.$BUILD_NUMBER
 RUN jfrog rt bp $BUILD_NAME $BUILD_NUMBER --server-id=swampup
 
 
@@ -35,4 +35,3 @@ WORKDIR /app/
 COPY --from=0  /go-swampup-service/go-swampup-service .
 
 CMD ["/app/go-swampup-service"]
-
