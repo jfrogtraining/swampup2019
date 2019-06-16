@@ -245,7 +245,7 @@ see - https://jfrog.com/blog/monitoring-and-optimizing-artifactory-performance/
 Revert changes <br />
 ```
 helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
---set postgresql.postgresConfig.max_connections=2 \
+--set postgresql.postgresConfig.max_connections=200 \
 --set postgresql.postgresConfig.superuser_reserved_connections=100
 ```
 #
