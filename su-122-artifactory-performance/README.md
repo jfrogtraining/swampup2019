@@ -58,7 +58,7 @@ Package min size (bytes) -  **35000000** <br />
 Package max size (bytes)  - **50000000** <br />
 Number of artifacts -  **35** <br />
 
-**Leave this job running**  <br />
+**Leave this job running - we will retun to this lab later**  <br />
 
 #
 # Lab 3 - High HTTP(S) Requests
