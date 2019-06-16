@@ -71,6 +71,22 @@ node {
         }
     }
 
+    stage('Xray Scan') {
+        if (XRAY_SCAN == "YES") {
+            def xrayConfig = [
+                'buildName'     : env.JOB_NAME,
+                'buildNumber'   : env.BUILD_NUMBER,
+                'failBuild'     : false
+            ]
+            def xrayResults = rtServer.xrayScan xrayConfig
+            sleep 60
+            echo xrayResults as String
+        } else {
+            println "No Xray scan performed. To enable set XRAY_SCAN = YES"
+        }
+
+    }
+
     //Promote image from local staging repository to production repository
     stage ('Promote') {
         dir ('su-121-golang-cicd/docker-framework') {
