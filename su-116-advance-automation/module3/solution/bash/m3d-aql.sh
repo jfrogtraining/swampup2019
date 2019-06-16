@@ -1,3 +1,6 @@
+# Exercise 3d-a - Find your uploaded files to tomcat with properties submitter=your name
+# Use generalAQLSearch in your main script to call the function generalAQLSearch ()
+
 # Exercise 3d-b - AQL find all jars with impl.class
 # You have just been informed that “junit-4.11.jar” class library has a serious null pointer exception 
 # issue. You must immediately find all products that have this issue and have development build with 

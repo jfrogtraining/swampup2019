@@ -37,4 +37,5 @@ step1-create1-application () {
    # Scan for vulnerabilities after you configure XRAY to watch your job 
    #jfrog rt bs ${build_name} ${build_no}
    echo "Successfully build application"
+   cd ${rootDir}
 }
