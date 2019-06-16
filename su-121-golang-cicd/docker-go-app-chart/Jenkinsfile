@@ -6,8 +6,9 @@ node {
     }*/
 
     stage('Install helm & JFrog CLI') {
-         /* This installs helm client
+         // This installs helm client
         sh "helm version"
+        /*
         sh "curl -O https://storage.googleapis.com/kubernetes-helm/helm-v2.9.1-linux-amd64.tar.gz"
         sh "tar -xvf helm-v2.9.1-linux-amd64.tar.gz"
         sh "chmod 777 helm"
@@ -21,7 +22,8 @@ node {
 
     stage('Build Chart & push it to Artifactory repo') {
         /* Configure helm client to point to k8s cluster */
-         sh "helm init"
+         // sh "helm init"
+
          sh "sed -i 's/0.1.1/0.1.${env.BUILD_NUMBER}/' docker-go-app-chart/Chart.yaml"
          sh "sed -i 's/latest/${IMAGE_TAG}/g' docker-go-app-chart/values.yaml"
          sh "helm package ./docker-go-app-chart/"
