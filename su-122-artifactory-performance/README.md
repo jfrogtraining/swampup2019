@@ -22,6 +22,9 @@ zooloo123
 Artifactory Nginx- look for **artifactory-artifactory-nginx** EXTERNAL-IP (port 80) <br />
 Jenkins - look for **jenkins-my-bloody-jenkins** EXTERNAL-IP (port 8080) <br />
 
+**Not getting admin menu when logged into jfrog products:** <br />
+Answer: Try opening browser in incognito mode and login again <br />
+
 
 ```
 NAME                                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                                          AGE
@@ -130,7 +133,7 @@ Upgrade artifactory helm chart by applying the artifactory.yaml config file <br 
 `helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml`
  <br />
  
- **Important - after every time we run helm upgrade to artifactory  we need to wait until our pods (nginx + artifactory)
+ **Important - after every time we run helm upgrade to artifactory  we need to wait (up to few minutes) until our pods (nginx + artifactory)
  are ready - (1/1) , you going to see the state changed to Terminating and CreateContainer ...** <br/>
 `kubectl  get pod -w`
 
