@@ -345,7 +345,7 @@ helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
 # Lab 2 , Phase II -  Help , I’ve got 1GB disk space left !
 
 Delete artifact (REST API) :<br />
-`DELETE http://xxx.xxx.xxx.xxx/artifactory/libs-release-local/ch/qos/logback/logback-classic/0.9.9  ` <br />
+`DELETE http://xxx.xxx.xxx.xxx/artifactory/someRepo/someArtifact  ` <br />
  
 Empty Trash Can (REST API) :<br />
 `DELETE /api/trash/clean/{repoName/path} ` <br />
@@ -354,18 +354,23 @@ Use JFrog CLI and delete artifacts by using AQL <br />
 
 Let's Install Jfrog CLI and setup connection to our artifactory <br />
 
+Download JFrog CLI <br />
+`curl -fL https://getcli.jfrog.io | sh`  <br />
+
+Config JFrog CLI with artifactory settings  <br />
+`./jfrog rt c`  <br />
+
+Supply artifactory details (url , user ,password) <br />
 ```
-curl -fL https://getcli.jfrog.io | sh
-./jfrog rt c
 # Artifactory server ID: art1
 # Artifactory URL: http://146.148.58.205/artifactory
 # Access token (Leave blank for username and password/API key):
 # User: admin
 # Password/API key:
 # [Info] Encrypting password...
-./jfrog rt use art1
-
 ```
+Set the JFrog CLI to use the art1 config  <br />
+`./jfrog rt use art1`
 
 More details about AQL - https://www.jfrog.com/confluence/display/RTF/Artifactory+Query+Language  <br />
 
