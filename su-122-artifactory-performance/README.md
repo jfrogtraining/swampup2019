@@ -61,14 +61,32 @@ Number of artifacts -  **35** <br />
 **Leave this job running - we will retun to this lab later**  <br />
 
 #
+
+
 # Lab 3 - High HTTP(S) Requests
 
 **Take 1 - change artifactory Tomcat** <br />
 
-Make sure Tomcat is queried *directly* and not Nginx (on the first a/b test). On the second, the user should query nginx, and not tomcat
+Make sure Tomcat is queried **directly** and not Nginx - look for **artifactory-artifactory** CLUSTER-IP
+
+```
+NAME                                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                                          AGE
+artifactory-apm-cassandra            ClusterIP      10.3.253.248   <none>          9042/TCP,9160/TCP                                8h
+artifactory-apm-cassandra-headless   ClusterIP      None           <none>          7000/TCP,7001/TCP,7199/TCP,9042/TCP,9160/TCP     8h
+artifactory-apm-glowroot             LoadBalancer   10.3.247.167   35.239.56.125   80:32052/TCP,8181:31697/TCP                      8h
+artifactory-artifactory              ClusterIP      10.3.247.115   <none>          8081/TCP                                         8h
+artifactory-artifactory-nginx        LoadBalancer   10.3.252.127   35.239.42.35    80:32630/TCP,443:30610/TCP                       8h
+artifactory-postgresql               ClusterIP      10.3.255.54    <none>          5432/TCP                                         8h
+jenkins-my-bloody-jenkins            LoadBalancer   10.3.240.89    34.66.62.55     8080:31268/TCP,50000:31232/TCP,16022:31731/TCP   8h
+kubernetes                           ClusterIP      10.3.240.1     <none>          443/TCP                                          8h
+mission-control                      LoadBalancer   10.3.246.82    35.222.172.0    80:31200/TCP,9300:30139/TCP                      8h
+mission-control-postgresql           ClusterIP      10.3.243.187   <none>          5432/TCP                                         8h
+workshop-sshd-dev                    LoadBalancer   10.3.246.83    35.224.124.21   2222:30368/TCP                                   8h
+
+```
 
 Create 50 concurrent HTTP connections using ApaceBanchemark - as base line<br />
-` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact 
+` ab -n 2000 -c 50 http://tomcatIp/someRepo/someArtifact 
 `
 
 create artifactory.yaml file with this values <br />
@@ -94,7 +112,6 @@ Upgrade artifactory helm chart with the SERVER_XML_ARTIFACTORY_MAX_THREADS new v
  <br />
  
  
-
 Check the new values under /opt/jfrog/artifactory/tomcat/conf/server.xml  <br />
 `helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml`
  <br />
@@ -105,7 +122,7 @@ Create 50 concurrent HTTP connections using ApaceBanchemark - see the latency in
 
 
 ```
-connection Times before (ms)
+connection Times - Before (ms)
               min  mean[+/-sd] median   max
 Connect:        0    0   0.7      0      10
 Processing:     1   20  16.2     16     215
@@ -115,7 +132,7 @@ Total:          1   21  16.2     16     215
 ```
 
  ```
- Connection Times after (ms)
+ Connection Times - After (ms)
               min  mean[+/-sd] median   max
 Connect:        0   11 147.2      0    7122
 Processing:     1    3  86.8      2   13376
