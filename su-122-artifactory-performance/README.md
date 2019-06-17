@@ -106,6 +106,17 @@ Upgrade artifactory helm chart by applying the artifactory.yaml config file <br 
  are ready - (1/1) , you going to see the state changed to Terminating and CreateContainer ...** <br/>
 `kubectl  get pod -w`
 
+
+As part of the pod status watch (-w) u may see the following error from the nginx pod - we can ignore it safley <br />
+
+```
+artifactory-artifactory-nginx-84655b8c7f-jm5fs   0/1   PostStartHookError: command '/bin/sh -c cp -Lrf /tmp/nginx.conf /etc/nginx/nginx.conf; until [ -f /etc/nginx/conf.d/artifactory.conf ]; do sleep 1; done; if ! grep -q 'upstream' /etc/nginx/conf.d/artifactory.conf; then sed -i -e 's,proxy_pass.*http://artifactory.*/artifactory/\(.*\);,proxy_pass       http://artifactory-artifactory:8081/artifactory/\1;,g' \
+    -e 's,server_name .*,server_name ~(?<repo>.+)\\.artifactory-artifactory artifactory-artifactory;,g' \
+    /etc/nginx/conf.d/artifactory.conf;
+fi; if [ -f /tmp/replicator-nginx.conf ]; then cp -fv /tmp/replicator-nginx.conf /etc/nginx/conf.d/replicator-nginx.conf; fi; if [ -f /tmp/ssl/*.crt ]; then rm -rf /var/opt/jfrog/nginx/ssl/example.*; cp -fv /tmp/ssl/* /var/opt/jfrog/nginx/ssl; fi; sleep 5; nginx -s reload; touch /var/log/nginx/conf.done
+' exited with 137: cp: cannot remove '/etc/nginx/nginx.conf': Permission denied
+```
+
  
 Check that artifactory connector is updated (port="8081") <br />
 `kubectl  exec -ti artifactory-artifactory-0 cat /opt/jfrog/artifactory/tomcat/conf/server.xml`
@@ -139,7 +150,7 @@ Total:          1   14 178.4      2   14437
 Change SERVER_XML_ARTIFACTORY_MAX_THREADS value back to 200 , remove the SERVER_XML_ARTIFACTORY_EXTRA_CONFIG key and run the following <br />
 `helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml` <br />
 
- **Again after the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1) <br/>
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1)** <br/>
 `kubectl  get pod -w`
 
 
@@ -230,7 +241,7 @@ Upgrade artifactory in order to apply the nginx conf change <br />
 `
 <br />
 
- **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1) <br/>
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1)** <br/>
 `kubectl  get pod -w`
 
 Make sure Nginx is queried **directly** and not Tomcat - look for **artifactory-artifactory-nginx** EXTERNAL-IP
@@ -258,7 +269,7 @@ Upgrade artifactory in order to revert changes <br />
 `helm upgrade artifactory jfrog/artifactory  --version 7.14.3 `
 <br />
 
- **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1) <br/>
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1)** <br/>
 `kubectl  get pod -w`
 
 
@@ -293,7 +304,7 @@ helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
 --set postgresql.postgresConfig.superuser_reserved_connections=100
 ```
 
- **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1) <br/>
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1)** <br/>
 `kubectl  get pod -w`
 
 #
@@ -386,7 +397,7 @@ Change Xms and Xmx JVM Heap size:<br />
 `helm upgrade artifactory  jfrog/artifactory --version 7.14.3 --set artifactory.javaOpts.xms="512m"  --set artifactory.javaOpts.xmx="1g" ` <br />
 <br />
 
- **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1) <br/>
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1)** <br/>
 
 
 explore - https://www.jfrog.com/confluence/display/RTF/Artifactory+JMX+MBeans 
