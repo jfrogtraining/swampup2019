@@ -261,6 +261,20 @@ Empty Trash Can (REST API) :<br />
 
 Use JFrog CLI and delete artifacts by using AQL <br />
 
+Let's Install Jfrog CLI and setup connection to our artifactory <br />
+
+```
+curl -fL https://getcli.jfrog.io | sh
+./jfrog rt c
+# Artifactory server ID: art1
+# Artifactory URL: http://146.148.58.205/artifactory
+# Access token (Leave blank for username and password/API key):
+# User: admin
+# Password/API key:
+# [Info] Encrypting password...
+./jfrog rt use art1
+
+```
 
 More details about AQL - https://www.jfrog.com/confluence/display/RTF/Artifactory+Query+Language  <br />
 
