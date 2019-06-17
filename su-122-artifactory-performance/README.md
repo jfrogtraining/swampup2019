@@ -102,6 +102,10 @@ Upgrade artifactory helm chart by applying the artifactory.yaml config file <br 
 `helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml`
  <br />
  
+ **Important - after every time we run helm upgrade to artifactory  we need to wait until our pods (ngnix + artifactory)
+ are ready - (1/1) , you going to see the state changed to Terminating and CreateContainer ... ** <br />
+`kubectl  get pod -w`
+
  
 Check that artifactory connector is updated (port="8081") <br />
 `kubectl  exec -ti artifactory-artifactory-0 cat /opt/jfrog/artifactory/tomcat/conf/server.xml`
