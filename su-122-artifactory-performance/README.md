@@ -175,7 +175,8 @@ Total:          1   14 178.4      2   14437
 ``` 
 
 
-Change SERVER_XML_ARTIFACTORY_MAX_THREADS value back to 200 , remove the SERVER_XML_ARTIFACTORY_EXTRA_CONFIG key and run the following <br />
+1. Change SERVER_XML_ARTIFACTORY_MAX_THREADS value back to 200 <br />
+2. remove the SERVER_XML_ARTIFACTORY_EXTRA_CONFIG key and run the following: <br />
 `helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml` <br />
 
  **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1)** <br/>
