@@ -219,7 +219,7 @@ http {
 <br />
 
 
-Update the nginx.conf with worker connection attribute = 30 <br />
+Update the nginx.conf with **worker_connections attribute = 30** <br />
 
 Create a configMap <br />
 `kubectl create configmap nginx-conf --from-file=nginx.conf 
