@@ -139,11 +139,14 @@ Total:          1   14 178.4      2   14437
 Change SERVER_XML_ARTIFACTORY_MAX_THREADS value back to 200 , remove the SERVER_XML_ARTIFACTORY_EXTRA_CONFIG key and run the following <br />
 `helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml` <br />
 
+ **Again after the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1) <br/>
+`kubectl  get pod -w`
+
 
 **Take 2 - change nginx** <br />
 
 
-Create a **nginx.conf** file based on the following setup  <br />
+Create a **nginx.conf** file on the ssh server u just connected to based on the following configuration  <br />
 
 ```
 # Main Nginx configuration file
@@ -227,6 +230,9 @@ Upgrade artifactory in order to apply the nginx conf change <br />
 `
 <br />
 
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1) <br/>
+`kubectl  get pod -w`
+
 Make sure Nginx is queried **directly** and not Tomcat - look for **artifactory-artifactory-nginx** EXTERNAL-IP
 
 ```
@@ -252,6 +258,9 @@ Upgrade artifactory in order to revert changes <br />
 `helm upgrade artifactory jfrog/artifactory  --version 7.14.3 `
 <br />
 
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1) <br/>
+`kubectl  get pod -w`
+
 
 #
 
@@ -266,15 +275,15 @@ helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
 
 Login to artifactory - you should see the UI is stuck <br />
 
+In the artifactory.log file you should see something like this:
+
 ```
-in the artifactory.log file you should see something like this:
 Caused by: org.postgresql.util.PSQLException:
 Data source rejected establishment of connection, message from server: "Too many connections"
 ```
 
-
 Can we resolve this issue by adjusting Artifactory configuration only? <br />
-see - https://jfrog.com/blog/monitoring-and-optimizing-artifactory-performance/
+please read - https://jfrog.com/blog/monitoring-and-optimizing-artifactory-performance/
 
 
 Revert changes <br />
@@ -283,6 +292,10 @@ helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
 --set postgresql.postgresConfig.max_connections=200 \
 --set postgresql.postgresConfig.superuser_reserved_connections=100
 ```
+
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1) <br/>
+`kubectl  get pod -w`
+
 #
 
 
@@ -372,6 +385,10 @@ explore the relevant artifactory User plugins - https://github.com/jfrog/artifac
 Change Xms and Xmx JVM Heap size:<br />
 `helm upgrade artifactory  jfrog/artifactory --version 7.14.3 --set artifactory.javaOpts.xms="512m"  --set artifactory.javaOpts.xmx="1g" ` <br />
 <br />
+
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1) <br/>
+
+
 explore - https://www.jfrog.com/confluence/display/RTF/Artifactory+JMX+MBeans 
 
 Restore change ? can u think what are the base practices sizing the VM<br />
