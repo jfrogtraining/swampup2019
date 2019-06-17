@@ -303,26 +303,19 @@ Create CLI spec file like delete-large-artifacts.spec <br />
 
 
 ```
-
 {
-  "files": [
-    {
-      "aql": {
-        "items.find": {
-          "repo": "some-repo",
-          "$or": [
-            {
-              "$and": [
-                {
-                  "?????": { ??????? } 
+    "files": [
+        {
+            "aql": {
+                "items.find": {
+                    "repo": "generic-local",
+                    "???": {
+                        "???": "???"
+                    }
                 }
-              ]
             }
-          ]
         }
-      }
-    }
-  ]
+    ]
 }
 
 ```
