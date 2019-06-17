@@ -47,7 +47,7 @@ workshop-sshd-dev                    LoadBalancer   10.3.246.83    35.224.124.21
 
 # Lab 1  - Update artifactory logging level - Access 
 Send an authenticated request to Artifactory with bad credentials, i.e: <br />
-`url -ufoo:password http://x.x.x.x/artifactory/api/system/ping` <br />
+`curl -ufoo:password http://x.x.x.x/artifactory/api/system/ping` <br />
 
 Lets connect to the artifactory pod by running :
 
