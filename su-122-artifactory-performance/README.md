@@ -103,7 +103,7 @@ Upgrade artifactory helm chart by applying the artifactory.yaml config file <br 
  <br />
  
  **Important - after every time we run helm upgrade to artifactory  we need to wait until our pods (ngnix + artifactory)
- are ready - (1/1) , you going to see the state changed to Terminating and CreateContainer ... ** <br />
+ are ready - (1/1) , you going to see the state changed to Terminating and CreateContainer ...** <br/>
 `kubectl  get pod -w`
 
  
