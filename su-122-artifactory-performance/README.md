@@ -112,14 +112,14 @@ Upgrade artifactory helm chart by applying the artifactory.yaml config file <br 
  <br />
  
  
-Check the new values under /opt/jfrog/artifactory/tomcat/conf/server.xml  <br />
-`helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml`
+Check that artifactory connector is updated <br />
+`kubectl  exec -ti artifactory-artifactory-0 cat /opt/jfrog/artifactory/tomcat/conf/server.xml`
  <br />
  
-Create 50 concurrent HTTP connections using ApaceBanchemark - see the latency in the response:<br />
-` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact 
+Create 50 concurrent HTTP connections using ApaceBanchemark (you may ctrl+c after few seconds) <br/>
+` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact `
 
-
+see the latency in the response:<br />
 
 ```
 connection Times - Before (ms)
