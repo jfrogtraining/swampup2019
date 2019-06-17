@@ -1,4 +1,4 @@
-# artifactory performance 
+# artifactory performance & montoring
 
 
 **connect to remote cluster by ssh :**<br /> 
@@ -21,6 +21,10 @@ zooloo123
 
 Artifactory Nginx- look for **artifactory-artifactory-nginx** EXTERNAL-IP (port 80) <br />
 Jenkins - look for **jenkins-my-bloody-jenkins** EXTERNAL-IP (port 8080) <br />
+
+**Not getting admin menu when logged into services:** <br />
+Answer 1 : Try opening browser in incognito mode and login again <br />
+Answer 2 : Please check if you are on VPN (Corporate firewall filters). You can stop the VPN and try accessing again.<br />
 
 
 ```
@@ -130,7 +134,7 @@ Upgrade artifactory helm chart by applying the artifactory.yaml config file <br 
 `helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml`
  <br />
  
- **Important - after every time we run helm upgrade to artifactory  we need to wait until our pods (nginx + artifactory)
+ **Important - after every time we run helm upgrade to artifactory  we need to wait (up to few minutes) until our pods (nginx + artifactory)
  are ready - (1/1) , you going to see the state changed to Terminating and CreateContainer ...** <br/>
 `kubectl  get pod -w`
 
@@ -345,7 +349,7 @@ helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
 # Lab 2 , Phase II -  Help , I’ve got 1GB disk space left !
 
 Delete artifact (REST API) :<br />
-`DELETE http://xxx.xxx.xxx.xxx/artifactory/libs-release-local/ch/qos/logback/logback-classic/0.9.9  ` <br />
+`DELETE http://xxx.xxx.xxx.xxx/artifactory/someRepo/someArtifact  ` <br />
  
 Empty Trash Can (REST API) :<br />
 `DELETE /api/trash/clean/{repoName/path} ` <br />
@@ -354,18 +358,23 @@ Use JFrog CLI and delete artifacts by using AQL <br />
 
 Let's Install Jfrog CLI and setup connection to our artifactory <br />
 
+Download JFrog CLI <br />
+`curl -fL https://getcli.jfrog.io | sh`  <br />
+
+Config JFrog CLI with artifactory settings  <br />
+`./jfrog rt c`  <br />
+
+Supply artifactory details (url , user ,password) <br />
 ```
-curl -fL https://getcli.jfrog.io | sh
-./jfrog rt c
 # Artifactory server ID: art1
 # Artifactory URL: http://146.148.58.205/artifactory
 # Access token (Leave blank for username and password/API key):
 # User: admin
 # Password/API key:
 # [Info] Encrypting password...
-./jfrog rt use art1
-
 ```
+Set the JFrog CLI to use the art1 config  <br />
+`./jfrog rt use art1`
 
 More details about AQL - https://www.jfrog.com/confluence/display/RTF/Artifactory+Query+Language  <br />
 
