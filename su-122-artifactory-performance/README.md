@@ -107,7 +107,7 @@ artifactory:
 
 ```
 
-Upgrade artifactory helm chart with the SERVER_XML_ARTIFACTORY_MAX_THREADS new value <br />
+Upgrade artifactory helm chart by applying the artifactory.yaml config file <br />
 `helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml`
  <br />
  
