@@ -19,8 +19,8 @@ zooloo123
 **get service ip** <br />
 `kubectl get svc`
 
-Artifactory Nginx- look for artifactory-artifactory-nginx EXTERNAL-IP (port 80)
-Jenkins - look for jenkins-my-bloody-jenkins EXTERNAL-IP (port 8080)
+Artifactory Nginx- look for **artifactory-artifactory-nginx** EXTERNAL-IP (port 80) <br />
+Jenkins - look for **jenkins-my-bloody-jenkins** EXTERNAL-IP (port 8080) <br />
 
 
 ```
