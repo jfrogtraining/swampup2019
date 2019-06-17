@@ -23,7 +23,8 @@ Artifactory Nginx- look for **artifactory-artifactory-nginx** EXTERNAL-IP (port 
 Jenkins - look for **jenkins-my-bloody-jenkins** EXTERNAL-IP (port 8080) <br />
 
 **Not getting admin menu when logged into jfrog products:** <br />
-Answer: Try opening browser in incognito mode and login again <br />
+Answer 1 : Try opening browser in incognito mode and login again <br />
+Answer 2 : Please check if you are on VPN (Corporate firewall filters). You can stop the VPN and try accessing again.<br />
 
 
 ```
