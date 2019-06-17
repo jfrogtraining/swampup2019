@@ -16,8 +16,12 @@ swampup2019performance@gmail.com
 zooloo123
 
 
-**get service ip  **
+**get service ip** <br />
 `kubectl get svc`
+
+Artifactory Nginx- look for artifactory-artifactory-nginx EXTERNAL-IP (port 80)
+Jenkins - look for jenkins-my-bloody-jenkins EXTERNAL-IP (port 8080)
+
 
 ```
 NAME                                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                                          AGE
