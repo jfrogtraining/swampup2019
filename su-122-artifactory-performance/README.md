@@ -6,7 +6,7 @@
 
 
 **init connection to k8s + helm :**<br /> 
-` /resources/init.sh <clusterName>
+**password** /resources/init.sh <clusterName>
 `
 
 **username** <br />
@@ -16,16 +16,42 @@ swampup2019performance@gmail.com
 zooloo123
 
 
+**get service ip** <br />
+`kubectl get svc`
+
+Artifactory Nginx- look for **artifactory-artifactory-nginx** EXTERNAL-IP (port 80) <br />
+Jenkins - look for **jenkins-my-bloody-jenkins** EXTERNAL-IP (port 8080) <br />
+
+
+```
+NAME                                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                                          AGE
+artifactory-apm-cassandra            ClusterIP      10.3.253.248   <none>          9042/TCP,9160/TCP                                19h
+artifactory-apm-cassandra-headless   ClusterIP      None           <none>          7000/TCP,7001/TCP,7199/TCP,9042/TCP,9160/TCP     19h
+artifactory-apm-glowroot             LoadBalancer   10.3.247.167   35.239.56.125   80:32052/TCP,8181:31697/TCP                      19h
+artifactory-artifactory              ClusterIP      10.3.247.115   <none>          8081/TCP                                         19h
+artifactory-artifactory-nginx        LoadBalancer   10.3.252.127   35.239.42.35    80:32630/TCP,443:30610/TCP                       19h
+artifactory-postgresql               ClusterIP      10.3.255.54    <none>          5432/TCP                                         19h
+jenkins-my-bloody-jenkins            LoadBalancer   10.3.240.89    34.66.62.55     8080:31268/TCP,50000:31232/TCP,16022:31731/TCP   19h
+kubernetes                           ClusterIP      10.3.240.1     <none>          443/TCP                                          19h
+mission-control                      LoadBalancer   10.3.246.82    35.222.172.0    80:31200/TCP,9300:30139/TCP                      19h
+mission-control-postgresql           ClusterIP      10.3.243.187   <none>          5432/TCP                                         19h
+workshop-sshd-dev                    LoadBalancer   10.3.246.83    35.224.124.21   2222:30368/TCP                                   19h
+```
+
 #
 
 
 # Lab 1  - Update artifactory logging level - Access 
 Send an authenticated request to Artifactory with bad credentials, i.e: <br />
-`url -uadmin:password http://x.x.x.x/artifactory/api/system/ping` <br />
+`url -ufoo:password http://x.x.x.x/artifactory/api/system/ping` <br />
 
-Notice the 401, but nothing in the /var/opt/jfrog/artifactory/logs/artifactory.log  <br />
+Lets connect to the artifactory pod by running :
 
-The logging level per appender can be modified in  ARTIFACTORY_HOME/etc/logback.xml <br />
+`kubectl exec -ti artifactory-artifactory-0 -- /bin/bash`
+
+Notice the 401, but nothing in cat  /var/opt/jfrog/artifactory/logs/artifactory.log  <br />
+
+The logging level per appender can be modified in  $ARTIFACTORY_HOME/etc/logback.xml <br />
 
 Edit the logback.xml file on the Artifactory by Enable HTTPClient debug logging: <br />
 
@@ -36,7 +62,9 @@ Edit the logback.xml file on the Artifactory by Enable HTTPClient debug logging:
 ```
 		
 		
-Rerun the above request, check the logs, and find the relevant communication attempt between Artifactory<>Access, and Accces's 401 response to Artifactory. 
+Rerun the above request, check the logs, and find the relevant communication attempt between Artifactory<>Access, and Accces's 401 response to Artifactory.  <br />
+
+Lets remove the logger we just created and we can exit the artifactory pod now  <br />
 
 
 #
@@ -61,9 +89,25 @@ Number of artifacts -  **35** <br />
 **Leave this job running - we will retun to this lab later**  <br />
 
 #
+
+
 # Lab 3 - High HTTP(S) Requests
 
 **Take 1 - change artifactory Tomcat** <br />
+
+Make sure Tomcat is queried **directly** and not Nginx - look for **artifactory-artifactory** CLUSTER-IP
+
+```
+NAME                                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                                          AGE
+artifactory-artifactory              ClusterIP      10.3.247.115   <none>          8081/TCP                                         8h
+artifactory-artifactory-nginx        LoadBalancer   10.3.252.127   35.239.42.35    80:32630/TCP,443:30610/TCP                       8h
+
+```
+
+Create 50 concurrent HTTP connections using ApaceBanchemark - as base line<br />
+` ab -n 2000 -c 50 http://tomcatIp/someRepo/someArtifact 
+`
+
 create artifactory.yaml file with this values <br />
 
 ```
@@ -82,22 +126,67 @@ artifactory:
 
 ```
 
-Upgrade artifactory helm chart with the SERVER_XML_ARTIFACTORY_MAX_THREADS new value <br />
-`helm upgrade artifactory jfrog/artifactory  --version 7.13.9  -f artifactory.yaml`
+Upgrade artifactory helm chart by applying the artifactory.yaml config file <br />
+`helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml`
  <br />
  
-Create 50 concurrent HTTP connections using ApaceBanchemark:<br />
-` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact 
-`
+ **Important - after every time we run helm upgrade to artifactory  we need to wait until our pods (nginx + artifactory)
+ are ready - (1/1) , you going to see the state changed to Terminating and CreateContainer ...** <br/>
+`kubectl  get pod -w`
 
-Change SERVER_XML_ARTIFACTORY_MAX_THREADS value back to 200 , remove the SERVER_XML_ARTIFACTORY_EXTRA_CONFIG key and run the following <br />
-`helm upgrade artifactory jfrog/artifactory  --version 7.13.9  -f artifactory.yaml` <br />
+
+As part of the pod status watch (-w) u may see the following error from the nginx pod - we can ignore it safley <br />
+
+```
+artifactory-artifactory-nginx-84655b8c7f-jm5fs   0/1   PostStartHookError: command '/bin/sh -c cp -Lrf /tmp/nginx.conf /etc/nginx/nginx.conf; until [ -f /etc/nginx/conf.d/artifactory.conf ]; do sleep 1; done; if ! grep -q 'upstream' /etc/nginx/conf.d/artifactory.conf; then sed -i -e 's,proxy_pass.*http://artifactory.*/artifactory/\(.*\);,proxy_pass       http://artifactory-artifactory:8081/artifactory/\1;,g' \
+    -e 's,server_name .*,server_name ~(?<repo>.+)\\.artifactory-artifactory artifactory-artifactory;,g' \
+    /etc/nginx/conf.d/artifactory.conf;
+fi; if [ -f /tmp/replicator-nginx.conf ]; then cp -fv /tmp/replicator-nginx.conf /etc/nginx/conf.d/replicator-nginx.conf; fi; if [ -f /tmp/ssl/*.crt ]; then rm -rf /var/opt/jfrog/nginx/ssl/example.*; cp -fv /tmp/ssl/* /var/opt/jfrog/nginx/ssl; fi; sleep 5; nginx -s reload; touch /var/log/nginx/conf.done
+' exited with 137: cp: cannot remove '/etc/nginx/nginx.conf': Permission denied
+```
+
+ 
+Check that artifactory connector is updated (port="8081") <br />
+`kubectl  exec -ti artifactory-artifactory-0 cat /opt/jfrog/artifactory/tomcat/conf/server.xml`
+ <br />
+ 
+Create 50 concurrent HTTP connections using ApaceBanchemark (you may ctrl+c after few seconds) <br/>
+` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact `
+
+see the latency in the response:<br />
+
+```
+connection Times - Before (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.7      0      10
+Processing:     1   20  16.2     16     215
+Waiting:        1   20  15.7     15     196
+Total:          1   21  16.2     16     215
+
+```
+
+ ```
+ Connection Times - After (ms)
+              min  mean[+/-sd] median   max
+Connect:        0   11 147.2      0    7122
+Processing:     1    3  86.8      2   13376
+Waiting:        0    3  86.8      1   13376
+Total:          1   14 178.4      2   14437
+``` 
+
+
+1. Change SERVER_XML_ARTIFACTORY_MAX_THREADS value back to 200 <br />
+2. remove the SERVER_XML_ARTIFACTORY_EXTRA_CONFIG key and run the following: <br />
+`helm upgrade artifactory jfrog/artifactory  --version 7.14.3  -f artifactory.yaml` <br />
+
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1)** <br/>
+`kubectl  get pod -w`
 
 
 **Take 2 - change nginx** <br />
 
 
-Create a **nginx.conf** file based on the following setup  <br />
+Create a **nginx.conf** file on the ssh server u just connected to based on the following configuration  <br />
 
 ```
 # Main Nginx configuration file
@@ -168,7 +257,7 @@ http {
 <br />
 
 
-Update the nginx.conf with worker connection attribute = 30 <br />
+Update the nginx.conf with **worker_connections attribute = 30** <br />
 
 Create a configMap <br />
 `kubectl create configmap nginx-conf --from-file=nginx.conf 
@@ -177,20 +266,40 @@ Create a configMap <br />
 
 
 Upgrade artifactory in order to apply the nginx conf change <br />
-`helm upgrade artifactory jfrog/artifactory --version 7.13.9 --set nginx.customConfigMap=nginx-conf
+`helm upgrade artifactory jfrog/artifactory --version 7.14.3 --set nginx.customConfigMap=nginx-conf
 `
 <br />
+
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1)** <br/>
+`kubectl  get pod -w`
+
+Make sure Nginx is queried **directly** and not Tomcat - look for **artifactory-artifactory-nginx** EXTERNAL-IP
+
+```
+NAME                                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                                          AGE
+artifactory-artifactory              ClusterIP      10.3.247.115   <none>          8081/TCP                                         8h
+artifactory-artifactory-nginx        LoadBalancer   10.3.252.127   35.239.42.35    80:32630/TCP,443:30610/TCP                       8h
+
+```
 
 Create 50 concurrent HTTP connections using ApaceBanchemark:<br />
 ` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact 
 `
 
+Refuse Connection will occur very fast <br />
+
+see Nginx logs <br />
+
+
 Delete the config map <br />
-`kubectl delete configmap nginx.conf ` <br />
+`kubectl delete configmap nginx-conf ` <br />
 
 Upgrade artifactory in order to revert changes <br />
-`helm upgrade artifactory  --version 7.13.9 `
+`helm upgrade artifactory jfrog/artifactory  --version 7.14.3 `
 <br />
+
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1)** <br/>
+`kubectl  get pod -w`
 
 
 #
@@ -198,16 +307,38 @@ Upgrade artifactory in order to revert changes <br />
 # Lab 4 - Database connections Exceeded
 
 Upgrade Postgres connection details :<br />
-`helm upgrade artifactory jfrog/artifactory --version 7.13.9 --set postgresql.postgresConfig.max_connections=2 --set postgresql.postgresConfig.superuser_reserved_connections=1
-`
+```
+helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
+--set postgresql.postgresConfig.max_connections=2 \
+--set postgresql.postgresConfig.superuser_reserved_connections=1
+```
+
+Login to artifactory - you should see the UI is stuck or even not displayed at all<br />
+
+In the artifactory.log file you should see something like this:
+
+```
+Caused by: org.postgresql.util.PSQLException:
+Data source rejected establishment of connection, message from server: "Too many connections"
+```
+
+
+
 
 Can we resolve this issue by adjusting Artifactory configuration only? <br />
-see - https://jfrog.com/knowledge-base/how-do-i-tune-artifactory-for-heavy-loads/  
+please read - https://jfrog.com/blog/monitoring-and-optimizing-artifactory-performance/
 
 
 Revert changes <br />
-`helm upgrade artifactory jfrog/artifactory --version 7.13.9 --set postgresql.postgresConfig.max_connections=2 --set postgresql.postgresConfig.superuser_reserved_connections=100
-`
+```
+helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
+--set postgresql.postgresConfig.max_connections=200 \
+--set postgresql.postgresConfig.superuser_reserved_connections=100
+```
+
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1)** <br/>
+`kubectl  get pod -w`
+
 #
 
 
@@ -221,6 +352,20 @@ Empty Trash Can (REST API) :<br />
 
 Use JFrog CLI and delete artifacts by using AQL <br />
 
+Let's Install Jfrog CLI and setup connection to our artifactory <br />
+
+```
+curl -fL https://getcli.jfrog.io | sh
+./jfrog rt c
+# Artifactory server ID: art1
+# Artifactory URL: http://146.148.58.205/artifactory
+# Access token (Leave blank for username and password/API key):
+# User: admin
+# Password/API key:
+# [Info] Encrypting password...
+./jfrog rt use art1
+
+```
 
 More details about AQL - https://www.jfrog.com/confluence/display/RTF/Artifactory+Query+Language  <br />
 
@@ -249,33 +394,26 @@ Create CLI spec file like delete-large-artifacts.spec <br />
 
 
 ```
-
 {
-  "files": [
-    {
-      "aql": {
-        "items.find": {
-          "repo": "some-repo",
-          "$or": [
-            {
-              "$and": [
-                {
-                  "?????": { ??????? } 
+    "files": [
+        {
+            "aql": {
+                "items.find": {
+                    "repo": "generic-local",
+                    "???": {
+                        "???": "???"
+                    }
                 }
-              ]
             }
-          ]
         }
-      }
-    }
-  ]
+    ]
 }
 
 ```
 
 Execute it or run it as a dry run command <br />
 
-jfrog rt del --spec delete-large-artifacts.spec --dry-run
+`./jfrog rt del --spec delete-large-artifacts.spec`
 
 
 
@@ -288,12 +426,16 @@ explore the relevant artifactory User plugins - https://github.com/jfrog/artifac
 # Lab 5 - JVM Memory Issues
 
 Change Xms and Xmx JVM Heap size:<br />
-`helm upgrade artifactory  jfrog/artifactory --version 7.13.9 --set artifactory.javaOpts.xms="512m"  --set artifactory.javaOpts.xmx="1g" ` <br />
+`helm upgrade artifactory  jfrog/artifactory --version 7.14.3 --set artifactory.javaOpts.xms="512m"  --set artifactory.javaOpts.xmx="1g" ` <br />
 <br />
+
+ **After the helm upgrade we need to wait till pod are stable again nginx and artifactory (1/1)** <br/>
+
+
 explore - https://www.jfrog.com/confluence/display/RTF/Artifactory+JMX+MBeans 
 
 Restore change ? can u think what are the base practices sizing the VM<br />
-`helm upgrade artifactory  jfrog/artifactory --version 7.13.9 --set artifactory.javaOpts.xms="xxx"  --set artifactory.javaOpts.xmx="yyy" ` <br />
+`helm upgrade artifactory  jfrog/artifactory --version 7.14.3 --set artifactory.javaOpts.xms="xxx"  --set artifactory.javaOpts.xmx="yyy" ` <br />
 
 
  
