@@ -329,7 +329,7 @@ Create CLI spec file like delete-large-artifacts.spec <br />
 
 Execute it or run it as a dry run command <br />
 
-jfrog rt del --spec delete-large-artifacts.spec --dry-run
+`./jfrog rt del --spec delete-large-artifacts.spec`
 
 
 
