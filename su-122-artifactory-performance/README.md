@@ -23,9 +23,13 @@ zooloo123
 Send an authenticated request to Artifactory with bad credentials, i.e: <br />
 `url -uadmin:password http://x.x.x.x/artifactory/api/system/ping` <br />
 
-Notice the 401, but nothing in the /var/opt/jfrog/artifactory/logs/artifactory.log  <br />
+Lets connect to the artifactory pod by running :
 
-The logging level per appender can be modified in  ARTIFACTORY_HOME/etc/logback.xml <br />
+`kubectl exec -ti artifactory-artifactory-0 -- /bin/bash`
+
+Notice the 401, but nothing in cat  /var/opt/jfrog/artifactory/logs/artifactory.log  <br />
+
+The logging level per appender can be modified in  $ARTIFACTORY_HOME/etc/logback.xml <br />
 
 Edit the logback.xml file on the Artifactory by Enable HTTPClient debug logging: <br />
 
@@ -36,7 +40,9 @@ Edit the logback.xml file on the Artifactory by Enable HTTPClient debug logging:
 ```
 		
 		
-Rerun the above request, check the logs, and find the relevant communication attempt between Artifactory<>Access, and Accces's 401 response to Artifactory. 
+Rerun the above request, check the logs, and find the relevant communication attempt between Artifactory<>Access, and Accces's 401 response to Artifactory.  <br />
+
+Lets remove the logger we just created and we can exit the artifactory pod now  <br />
 
 
 #
@@ -284,7 +290,7 @@ helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
 --set postgresql.postgresConfig.superuser_reserved_connections=1
 ```
 
-Login to artifactory - you should see the UI is stuck <br />
+Login to artifactory - you should see the UI is stuck or even not displayed at all<br />
 
 In the artifactory.log file you should see something like this:
 
@@ -292,6 +298,9 @@ In the artifactory.log file you should see something like this:
 Caused by: org.postgresql.util.PSQLException:
 Data source rejected establishment of connection, message from server: "Too many connections"
 ```
+
+
+
 
 Can we resolve this issue by adjusting Artifactory configuration only? <br />
 please read - https://jfrog.com/blog/monitoring-and-optimizing-artifactory-performance/
