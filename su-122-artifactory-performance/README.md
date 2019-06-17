@@ -71,17 +71,8 @@ Make sure Tomcat is queried **directly** and not Nginx - look for **artifactory-
 
 ```
 NAME                                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                                          AGE
-artifactory-apm-cassandra            ClusterIP      10.3.253.248   <none>          9042/TCP,9160/TCP                                8h
-artifactory-apm-cassandra-headless   ClusterIP      None           <none>          7000/TCP,7001/TCP,7199/TCP,9042/TCP,9160/TCP     8h
-artifactory-apm-glowroot             LoadBalancer   10.3.247.167   35.239.56.125   80:32052/TCP,8181:31697/TCP                      8h
 artifactory-artifactory              ClusterIP      10.3.247.115   <none>          8081/TCP                                         8h
 artifactory-artifactory-nginx        LoadBalancer   10.3.252.127   35.239.42.35    80:32630/TCP,443:30610/TCP                       8h
-artifactory-postgresql               ClusterIP      10.3.255.54    <none>          5432/TCP                                         8h
-jenkins-my-bloody-jenkins            LoadBalancer   10.3.240.89    34.66.62.55     8080:31268/TCP,50000:31232/TCP,16022:31731/TCP   8h
-kubernetes                           ClusterIP      10.3.240.1     <none>          443/TCP                                          8h
-mission-control                      LoadBalancer   10.3.246.82    35.222.172.0    80:31200/TCP,9300:30139/TCP                      8h
-mission-control-postgresql           ClusterIP      10.3.243.187   <none>          5432/TCP                                         8h
-workshop-sshd-dev                    LoadBalancer   10.3.246.83    35.224.124.21   2222:30368/TCP                                   8h
 
 ```
 
@@ -232,9 +223,23 @@ Upgrade artifactory in order to apply the nginx conf change <br />
 `
 <br />
 
+Make sure Nginx is queried **directly** and not Tomcat - look for **artifactory-artifactory-nginx** EXTERNAL-IP
+
+```
+NAME                                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)                                          AGE
+artifactory-artifactory              ClusterIP      10.3.247.115   <none>          8081/TCP                                         8h
+artifactory-artifactory-nginx        LoadBalancer   10.3.252.127   35.239.42.35    80:32630/TCP,443:30610/TCP                       8h
+
+```
+
 Create 50 concurrent HTTP connections using ApaceBanchemark:<br />
 ` ab -n 2000 -c 50 http://xxx.xxx.xxx.xxx/someRepo/someArtifact 
 `
+
+Refuse Connection will occur very fast <br />
+
+see Nginx logs <br />
+
 
 Delete the config map <br />
 `kubectl delete configmap nginx-conf ` <br />
@@ -254,6 +259,15 @@ helm upgrade artifactory jfrog/artifactory --version 7.14.3 \
 --set postgresql.postgresConfig.max_connections=2 \
 --set postgresql.postgresConfig.superuser_reserved_connections=1
 ```
+
+Login to artifactory - you should see the UI is stuck <br />
+
+```
+in the artifactory.log file you should see something like this:
+Caused by: org.postgresql.util.PSQLException:
+Data source rejected establishment of connection, message from server: "Too many connections"
+```
+
 
 Can we resolve this issue by adjusting Artifactory configuration only? <br />
 see - https://jfrog.com/blog/monitoring-and-optimizing-artifactory-performance/
