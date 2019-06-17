@@ -103,7 +103,7 @@ Upgrade artifactory helm chart by applying the artifactory.yaml config file <br 
  <br />
  
  
-Check that artifactory connector is updated <br />
+Check that artifactory connector is updated (port="8081") <br />
 `kubectl  exec -ti artifactory-artifactory-0 cat /opt/jfrog/artifactory/tomcat/conf/server.xml`
  <br />
  
