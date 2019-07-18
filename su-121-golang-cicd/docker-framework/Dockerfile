@@ -1,4 +1,5 @@
 FROM jfrog.local:5000/alpine:3.9
+MAINTAINER Elio Marcolino eliomf@jfrog.com
 
 # Install dependencies
 RUN apk update && apk add --update gcc git musl-dev curl bash
