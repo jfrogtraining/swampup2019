@@ -27,7 +27,7 @@ spec:
           livenessProbe:
             failureThreshold: 3
             httpGet:
-              path: /
+              path: /ping
               port: 7888
               scheme: HTTP
             initialDelaySeconds: 30
