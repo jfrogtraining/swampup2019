@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 node {
 
     def lastDockerBuild = getLatestAppBuild(SERVER_URL)
