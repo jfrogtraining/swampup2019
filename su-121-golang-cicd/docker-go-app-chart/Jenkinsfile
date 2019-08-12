@@ -25,16 +25,7 @@ node {
     //Fetch all dependencies from Artifactory
     stage('Dependencies') {
         dir('su-121-golang-cicd/docker-go-app-chart') {
-            def downloadSpec = """{
-                     "files": [
-                      {
-                       "pattern": "docker-prod-local/docker-go-app/${lastDockerBuild}/manifest.json",
-                       "target": "manifest.json",
-                       "flat":"true"
-                      }
-                      ]
-                    }"""
-            rtServer.download (downloadSpec, buildInfo)
+            sh "jfrog rt dl --flat=true --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER} docker-prod-local/docker-go-app/${lastDockerBuild}/manifest.json ./manifest.json"
             if (fileExists('manifest.json')) {
                 println "Downloaded dependencies"
             } else {
