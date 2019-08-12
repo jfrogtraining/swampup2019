@@ -31,11 +31,10 @@ node {
                       {
                        "pattern": "go-binaries/jfrog/go-swampup-service/go-swampup-service-linux-x86-1.2.${lastAppBuild}.bin",
                        "target": "go-swampup-service",
-                       "flat":"true"                       
+                       "flat":"true"
                       }
                       ]
                     }"""
-            sh "jfrog rt dl --flat=true --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER} go-binaries/jfrog/go-swampup-service/go-swampup-service-linux-x86-1.2.${lastAppBuild}.bin ./go-swampup-service"
             rtServer.download (downloadSpec, buildInfo)
             if (fileExists('go-swampup-service')) {
                 println "Downloaded dependencies"

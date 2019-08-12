@@ -1,8 +1,10 @@
 node {
 
+    def lastDockerBuild = getLatestAppBuild(SERVER_URL)
+
     stage('Cleanup & Clone') {
         cleanWs()
-        git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'su-121-golang-cicd'
+        git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'gophercon'
     }
 
     stage('Install JFrog CLI') {
@@ -18,16 +20,63 @@ node {
         }
     }
 
+    //Fetch all dependencies from Artifactory
+    stage('Dependencies') {
+        dir('su-121-golang-cicd/docker-go-app-chart') {
+            def downloadSpec = """{
+                     "files": [
+                      {
+                       "pattern": "docker-prod-local/docker-go-app/${lastDockerBuild}/manifest.json",
+                       "target": "manifest.json",
+                       "flat":"true"
+                      }
+                      ]
+                    }"""
+            rtServer.download (downloadSpec, buildInfo)
+            if (fileExists('manifest.json')) {
+                println "Downloaded dependencies"
+            } else {
+                println "Missing Dependencies"
+                throw new FileNotFoundException("Missing Dependencies")
+            }
+        }
+    }
+
     stage('Build Chart & push it to Artifactory repo') {
         /* Configure helm client to point to k8s cluster */
         dir("su-121-golang-cicd"){
            sh "sed -i 's/0.1.1/0.1.${env.BUILD_NUMBER}/' docker-go-app-chart/Chart.yaml"
-           //sh "sed -i 's/latest/${IMAGE_TAG}/g' docker-go-app-chart/values.yaml"
+           sh "sed -i 's/latest/${lastDockerBuild}/g' docker-go-app-chart/values.yaml"
            sh "helm package ./docker-go-app-chart/"
            sh "jfrog rt u '*.tgz' ${REPO} --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER}"
            sh "jfrog rt bce ${env.JOB_NAME} ${env.BUILD_NUMBER}"
            // sh "./jfrog rt dl docker-prod-local/docker-go-app/${IMAGE_TAG}/manifest.json --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER} "
            sh "jfrog rt bp ${env.JOB_NAME} ${env.BUILD_NUMBER}"
+        }
+    }
+}
+
+def getLatestDockerBuild (server_url) {
+
+   def aqlString = 'builds.find ({"name": {"$eq":"step3-containerize-go-microservice"}}).sort({"$desc":["created"]}).limit(1)'
+
+   File aqlFile = File.createTempFile("buildlatest", ".tmp")
+   aqlFile.deleteOnExit()
+
+   aqlFile << aqlString
+
+   withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+       def getLatestBuild = "curl -u$USERNAME:$PASSWORD -X POST " + server_url + "/api/search/aql -T " + aqlFile.getAbsolutePath()
+
+       try {
+             def buildInfo = getLatestBuild.execute().text
+             def jsonSlurper = new JsonSlurper()
+             def latestBuild = jsonSlurper.parseText("${buildInfo}")
+
+             return latestBuild ? latestBuild.results[0]."build.number":"latest"
+        } catch (Exception e) {
+            println "Caught exception finding latest app build. Message ${e.message}"
+            throw e
         }
     }
 }
