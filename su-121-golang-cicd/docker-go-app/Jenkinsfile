@@ -1,4 +1,6 @@
 #!/usr/bin/env groovy
+import groovy.json.JsonSlurper
+
 def ARTDOCKER_REGISTRY = "jfrog.local:5000"
 def REPO = "docker-virtual"
 def PROMOTE_REPO = "docker-prod-local"
