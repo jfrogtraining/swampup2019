@@ -1,0 +1,113 @@
+#!/usr/bin/env groovy
+def ARTDOCKER_REGISTRY = "jfrog.local:5000"
+def REPO = "docker-virtual"
+def PROMOTE_REPO = "docker-prod-local"
+def SOURCE_REPO = "docker-stage-local"
+
+node {
+
+    def rtServer = Artifactory.newServer url: "http://jfrog.local/artifactory", credentialsId: CREDENTIALS
+    def rtDocker = Artifactory.docker server: rtServer
+    def buildInfo = Artifactory.newBuildInfo()
+    def tagName
+    buildInfo.env.capture = true
+
+    stage ('Clone') {
+        cleanWs()
+
+        git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'gophercon'
+
+        dir('su-121-golang-cicd/go-app/src') {
+            git 'https://github.com/jfrogtraining/go-swampup-service'
+        }
+    }
+
+    stage ('Build source and Image') {
+        dir('su-121-golang-cicd/go-app') {
+            tagName = "${ARTDOCKER_REGISTRY}/docker-go-app:${env.BUILD_NUMBER}"
+
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " -XPOST \"http://jfrog.local/artifactory/api/security/token\" -d \"username=env.USERNAME\" -d \"scope=member-of-groups:writers\" -d \"expires_in=600\""
+
+                def ret = sh(script: curlString, returnStdout: true)
+
+                def ARTIFACTORY_ACCESS_TOKEN = sh(script: "echo '${ret}' | jq -r .access_token", returnStdout: true )
+
+                def IP = sh(script: 'curl ifconfig.me', returnStdout: true )
+                docker.build(tagName, ". --build-arg ARTIFACTORY_URL=http://$IP/artifactory/ --build-arg ARTIFACTORY_USER=jenkins --build-arg BUILD_NUMBER=${env.BUILD_NUMBER} --build-arg BUILD_NAME=${env.JOB_NAME}-go --build-arg ARTIFACTORY_ACCESS_TOKEN=$ARTIFACTORY_ACCESS_TOKEN .")
+
+                buildInfo = rtDocker.push(tagName, "docker-virtual", buildInfo)
+
+                rtServer.publishBuildInfo buildInfo
+            }
+
+        }
+    }
+
+    stage ('Test') {
+        dir('su-121-golang-cicd/go-app') {
+            //ToDo
+        }
+    }
+
+    stage('Xray Scan') {
+        if (XRAY_SCAN == "YES") {
+            def xrayConfig = [
+                'buildName'     : env.JOB_NAME,
+                'buildNumber'   : env.BUILD_NUMBER,
+                'failBuild'     : false
+            ]
+            def xrayResults = rtServer.xrayScan xrayConfig
+            sleep 60
+            echo xrayResults as String
+        } else {
+            println "No Xray scan performed. To enable set XRAY_SCAN = YES"
+        }
+
+    }
+
+    stage ('Promote') {
+        dir('su-121-golang-cicd/go-app') {
+            def promotionConfig = [
+              'buildName'          : env.JOB_NAME,
+              'buildNumber'        : env.BUILD_NUMBER,
+              'targetRepo'         : "docker-prod-local",
+              'comment'            : 'Go-App test with latest version of application',
+              'sourceRepo'         : "docker-stage-local",
+              'status'             : 'Released',
+              'includeDependencies': false,
+              'copy'               : true
+            ]
+            rtServer.promote promotionConfig
+            reTagLatest (SOURCE_REPO)
+            reTagLatest (PROMOTE_REPO)
+        }
+
+    }
+}
+
+def updateDockerFile () {
+    def BUILD_NUMBER = env.BUILD_NUMBER
+    sh "sed -i 's/docker.artifactory/${ARTDOCKER_REGISTRY}/' Dockerfile"
+    sh 'sed -i "s/go-app:latest/go-app:$BUILD_NUMBER/" Dockerfile'
+}
+
+def reTagLatest (targetRepo) {
+     def BUILD_NUMBER = env.BUILD_NUMBER
+     sh 'sed -E "s/@/$BUILD_NUMBER/" retag.json > retag_out.json'
+     switch (targetRepo) {
+          case "docker-prod-local" :
+              sh 'sed -E "s/TARGETREPO/docker-prod-local/" retag_out.json > retaga_out.json'
+              break
+          case "docker-stage-local" :
+               sh 'sed -E "s/TARGETREPO/docker-stage-local/" retag_out.json > retaga_out.json'
+               break
+      }
+      sh 'cat retaga_out.json'
+      withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+          def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " http://jfrog.local/artifactory"
+          def regTagStr = curlString +  "/api/docker/docker-stage-local/v2/promote -X POST -H 'Content-Type: application/json' -T retaga_out.json"
+          println "Curl String is " + regTagStr
+          sh regTagStr
+      }
+}
