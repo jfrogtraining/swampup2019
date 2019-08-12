@@ -2,7 +2,7 @@ import groovy.json.JsonSlurper
 
 node {
 
-    def lastDockerBuild = getLatestAppBuild(SERVER_URL)
+    def lastDockerBuild = getLatestDockerBuild(SERVER_URL)
 
     stage('Cleanup & Clone') {
         cleanWs()
