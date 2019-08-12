@@ -3,49 +3,42 @@ def ARTDOCKER_REGISTRY = "jfrog.local:5000"
 def REPO = "docker-virtual"
 def PROMOTE_REPO = "docker-prod-local"
 def SOURCE_REPO = "docker-stage-local"
+def SERVER_URL = "http://jfrog.local/artifactory"
 
 node {
 
-    def rtServer = Artifactory.newServer url: "http://jfrog.local/artifactory", credentialsId: CREDENTIALS
+    def rtServer = Artifactory.newServer url: SERVER_URL, credentialsId: CREDENTIALS
     def rtDocker = Artifactory.docker server: rtServer
     def buildInfo = Artifactory.newBuildInfo()
     def tagName
     buildInfo.env.capture = true
+    def lastAppBuild = getLatestAppBuild(SERVER_URL)
 
     stage ('Clone') {
         cleanWs()
 
         git url: 'https://github.com/jfrogtraining/swampup2019', branch : 'gophercon'
 
-        dir('su-121-golang-cicd/go-app/src') {
-            git 'https://github.com/jfrogtraining/go-swampup-service'
+    }
+
+    //Fetch all dependencies from Artifactory
+    stage('Dependencies') {
+        dir('su-121-golang-cicd/docker-go-app') {
+            sh "jfrog rt dl --flat=true --build-name=${env.JOB_NAME} --build-number=${env.BUILD_NUMBER} go-binaries/jfrog/go-swampup-service/go-swampup-service-linux-x86-1.2.${lastAppBuild}.bin ./go-swampup-service"
         }
     }
 
     stage ('Build source and Image') {
-        dir('su-121-golang-cicd/go-app') {
+        dir('su-121-golang-cicd/docker-go-app') {
             tagName = "${ARTDOCKER_REGISTRY}/docker-go-app:${env.BUILD_NUMBER}"
-
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                def curlString = "curl -u " + env.USERNAME + ":" + env.PASSWORD + " -XPOST \"http://jfrog.local/artifactory/api/security/token\" -d \"username=env.USERNAME\" -d \"scope=member-of-groups:writers\" -d \"expires_in=600\""
-
-                def ret = sh(script: curlString, returnStdout: true)
-
-                def ARTIFACTORY_ACCESS_TOKEN = sh(script: "echo '${ret}' | jq -r .access_token", returnStdout: true )
-
-                def IP = sh(script: 'curl ifconfig.me', returnStdout: true )
-                docker.build(tagName, ". --build-arg ARTIFACTORY_URL=http://$IP/artifactory/ --build-arg ARTIFACTORY_USER=jenkins --build-arg BUILD_NUMBER=${env.BUILD_NUMBER} --build-arg BUILD_NAME=${env.JOB_NAME}-go --build-arg ARTIFACTORY_ACCESS_TOKEN=$ARTIFACTORY_ACCESS_TOKEN .")
-
-                buildInfo = rtDocker.push(tagName, "docker-virtual", buildInfo)
-
-                rtServer.publishBuildInfo buildInfo
-            }
-
+            docker.build(tagName)
+            buildInfo = rtDocker.push(tagName, "docker-virtual", buildInfo)
+            rtServer.publishBuildInfo buildInfo
         }
     }
 
     stage ('Test') {
-        dir('su-121-golang-cicd/go-app') {
+        dir('su-121-golang-cicd/docker-go-app') {
             //ToDo
         }
     }
@@ -67,7 +60,7 @@ node {
     }
 
     stage ('Promote') {
-        dir('su-121-golang-cicd/go-app') {
+        dir('su-121-golang-cicd/docker-go-app') {
             def promotionConfig = [
               'buildName'          : env.JOB_NAME,
               'buildNumber'        : env.BUILD_NUMBER,
@@ -110,4 +103,29 @@ def reTagLatest (targetRepo) {
           println "Curl String is " + regTagStr
           sh regTagStr
       }
+}
+
+def getLatestAppBuild (server_url) {
+
+   def aqlString = 'builds.find ({"name": {"$eq":"step1-go-app"}}).sort({"$desc":["created"]}).limit(1)'
+
+   File aqlFile = File.createTempFile("buildlatest", ".tmp")
+   aqlFile.deleteOnExit()
+
+   aqlFile << aqlString
+
+   withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+       def getLatestBuild = "curl -u$USERNAME:$PASSWORD -X POST " + server_url + "/api/search/aql -T " + aqlFile.getAbsolutePath()
+
+       try {
+             def buildInfo = getLatestBuild.execute().text
+             def jsonSlurper = new JsonSlurper()
+             def latestBuild = jsonSlurper.parseText("${buildInfo}")
+
+             return latestBuild ? latestBuild.results[0]."build.number":"latest"
+        } catch (Exception e) {
+            println "Caught exception finding latest app build. Message ${e.message}"
+            throw e
+        }
+    }
 }
